@@ -37,6 +37,12 @@ export default function Navbar() {
             <Link href="/dictionary" className="text-gray-500 hover:text-orange-500 transition-colors font-medium">
               המילון
             </Link>
+            <Link href="/sentences" className="text-gray-500 hover:text-orange-500 transition-colors font-medium">
+              משפטים
+            </Link>
+            <Link href="/grammar" className="text-gray-500 hover:text-orange-500 transition-colors font-medium">
+              חוקי השפה
+            </Link>
             <Link href="/about" className="text-gray-500 hover:text-orange-500 transition-colors font-medium">
               אודות
             </Link>
@@ -97,6 +103,12 @@ export default function Navbar() {
             <div className="flex flex-col gap-3">
               <Link href="/dictionary" className="text-gray-500 hover:text-orange-500 py-2" onClick={() => setMenuOpen(false)}>
                 המילון
+              </Link>
+              <Link href="/sentences" className="text-gray-500 hover:text-orange-500 py-2" onClick={() => setMenuOpen(false)}>
+                משפטים
+              </Link>
+              <Link href="/grammar" className="text-gray-500 hover:text-orange-500 py-2" onClick={() => setMenuOpen(false)}>
+                חוקי השפה
               </Link>
               <Link href="/about" className="text-gray-500 hover:text-orange-500 py-2" onClick={() => setMenuOpen(false)}>
                 אודות

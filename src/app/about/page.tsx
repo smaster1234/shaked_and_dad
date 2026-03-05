@@ -90,7 +90,7 @@ export default function AboutPage() {
         <section className="text-center">
           <h2 className="text-xl font-bold text-amber-700 mb-3">יצירת קשר</h2>
           <p className="text-gray-600 mb-4">יש שאלות? רוצים לדבר איתנו?</p>
-          <p className="text-gray-600">כתבו לנו: <strong>shakdol@example.com</strong></p>
+          <p className="text-gray-600">כתבו לנו: <strong>shaked@shakedol.org</strong></p>
         </section>
 
         <div className="text-center pt-4 border-t">
