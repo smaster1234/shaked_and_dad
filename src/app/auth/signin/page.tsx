@@ -63,7 +63,7 @@ export default function SignInPage() {
       if (res?.error) {
         setError("אימייל או סיסמה שגויים");
       } else if (res?.ok) {
-        router.push("/create");
+        window.location.href = "/create";
       }
     } catch {
       setError("שגיאה. נסו שוב.");
