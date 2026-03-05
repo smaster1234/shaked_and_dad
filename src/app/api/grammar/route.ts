@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 // GET - fetch all grammar rules grouped by category
 export async function GET() {
   const rules = await prisma.grammarRule.findMany({
