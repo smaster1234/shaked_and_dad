@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { UserStatus, UserRole } from "@prisma/client";
 
+export const dynamic = "force-dynamic";
+
 async function checkAdmin() {
   const session = await getServerSession(authOptions);
   if (!session?.user || (session.user.role !== "ADMIN" && session.user.role !== "COMMITTEE")) {
