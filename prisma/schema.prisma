@@ -1,0 +1,203 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+  COMMITTEE
+}
+
+enum UserStatus {
+  ACTIVE
+  WARNED
+  SUSPENDED
+  BANNED
+}
+
+enum WordStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ModerationAction {
+  WARNING
+  SUSPEND_24H
+  SUSPEND_10D
+  BAN
+}
+
+enum NotificationType {
+  WORD_APPROVED
+  WORD_REJECTED
+  WARNING
+  SUSPENSION
+  BAN
+  GENERAL
+}
+
+enum AuditAction {
+  APPROVE_WORD
+  REJECT_WORD
+  DELETE_WORD
+  SUSPEND_USER
+  UNSUSPEND_USER
+  BAN_USER
+  UNBAN_USER
+  WARN_USER
+  CHANGE_SETTING
+  CHANGE_USER_ROLE
+}
+
+enum AuditTargetType {
+  USER
+  WORD
+  SETTING
+}
+
+// NextAuth models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// App models
+model User {
+  id                 String     @id @default(cuid())
+  name               String?
+  email              String     @unique
+  emailVerified      DateTime?
+  image              String?
+  fullName           String     @default("")
+  age                Int        @default(0)
+  role               UserRole   @default(USER)
+  status             UserStatus @default(ACTIVE)
+  warningCount       Int        @default(0)
+  suspendedUntil     DateTime?
+  termsAcceptedAt    DateTime?
+  dailySubmissions   Int        @default(0)
+  lastSubmissionDate DateTime?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  accounts       Account[]
+  sessions       Session[]
+  submittedWords Word[]          @relation("SubmittedWords")
+  reviewedWords  Word[]          @relation("ReviewedWords")
+  moderationLogs ModerationLog[]
+  notifications  Notification[]
+  wordSessions   WordSession[]
+  adminAuditLogs AdminAuditLog[]
+}
+
+model Word {
+  id             Int        @id @default(autoincrement())
+  word           String     @unique
+  meaning        String
+  startingLetter String
+  status         WordStatus @default(PENDING)
+  submittedById  String
+  reviewedById   String?
+  reviewNote     String?
+  submissionTime Int
+  sessionToken   String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  submittedBy   User           @relation("SubmittedWords", fields: [submittedById], references: [id])
+  reviewedBy    User?          @relation("ReviewedWords", fields: [reviewedById], references: [id])
+  notifications Notification[]
+}
+
+model ModerationLog {
+  id             String           @id @default(cuid())
+  userId         String
+  wordAttempt    String
+  meaningAttempt String
+  reason         String
+  actionTaken    ModerationAction
+  createdAt      DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  wordId    Int?
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User  @relation(fields: [userId], references: [id])
+  word Word? @relation(fields: [wordId], references: [id])
+}
+
+model AdminAuditLog {
+  id         String          @id @default(cuid())
+  adminId    String
+  action     AuditAction
+  targetType AuditTargetType
+  targetId   String
+  details    Json?
+  createdAt  DateTime        @default(now())
+
+  admin User @relation(fields: [adminId], references: [id])
+}
+
+model WordSession {
+  id        String   @id @default(cuid())
+  userId    String
+  letter    String
+  startedAt DateTime @default(now())
+  expiresAt DateTime
+  used      Boolean  @default(false)
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model SiteSettings {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}

@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #fefce8;
+  --foreground: #1c1917;
+  --primary: #d97706;
+  --primary-hover: #b45309;
+  --secondary: #059669;
+  --secondary-hover: #047857;
+  --accent: #7c3aed;
+  --danger: #dc2626;
+  --warning: #f59e0b;
+  --success: #10b981;
+  --card: #ffffff;
+  --card-border: #e5e7eb;
+  --muted: #6b7280;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+  direction: rtl;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold py-3 px-6 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 text-lg;
+  }
+
+  .btn-secondary {
+    @apply bg-[var(--secondary)] hover:bg-[var(--secondary-hover)] text-white font-bold py-3 px-6 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 text-lg;
+  }
+
+  .btn-danger {
+    @apply bg-[var(--danger)] hover:bg-red-700 text-white font-bold py-2 px-4 rounded-xl transition-all duration-200;
+  }
+
+  .card {
+    @apply bg-[var(--card)] border border-[var(--card-border)] rounded-2xl shadow-sm p-6;
+  }
+
+  .input-field {
+    @apply w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-lg focus:outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-200 transition-all duration-200;
+  }
+
+  .page-container {
+    @apply max-w-6xl mx-auto px-4 py-8;
+  }
+
+  .section-title {
+    @apply text-3xl font-bold text-[var(--foreground)] mb-6;
+  }
+}
