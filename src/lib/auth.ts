@@ -3,23 +3,37 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import EmailProvider from "next-auth/providers/email";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
+import { Resend } from "resend";
 import { prisma } from "./prisma";
 import type { Adapter } from "next-auth/adapters";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
     EmailProvider({
-      server: {
-        host: process.env.EMAIL_SERVER_HOST,
-        port: Number(process.env.EMAIL_SERVER_PORT),
-        secure: Number(process.env.EMAIL_SERVER_PORT) === 465,
-        auth: {
-          user: process.env.EMAIL_SERVER_USER,
-          pass: process.env.EMAIL_SERVER_PASSWORD,
-        },
-      },
       from: process.env.EMAIL_FROM || "shaked@shakedol.org",
+      sendVerificationRequest: async ({ identifier: email, url, provider }) => {
+        const { error } = await resend.emails.send({
+          from: provider.from,
+          to: email,
+          subject: "התחברות לשקד ואבא",
+          html: `
+            <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <h2 style="color: #333;">שלום!</h2>
+              <p>לחץ על הכפתור למטה כדי להתחבר:</p>
+              <a href="${url}" style="display: inline-block; background-color: #4F46E5; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin: 16px 0;">
+                התחבר עכשיו
+              </a>
+              <p style="color: #666; font-size: 14px;">אם לא ביקשת להתחבר, אפשר להתעלם מהמייל הזה.</p>
+            </div>
+          `,
+        });
+        if (error) {
+          throw new Error(`Failed to send email: ${error.message}`);
+        }
+      },
     }),
     // Credentials provider for admin login with password
     CredentialsProvider({
