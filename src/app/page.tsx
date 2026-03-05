@@ -25,9 +25,9 @@ export default async function HomePage() {
             ברוכים הבאים ל<span className="text-amber-600">שקדול</span>!
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
-            כאן אנחנו ממציאים שפה חדשה ומיוחדת, מילה אחרי מילה.
+            השפה החדשה שהיא רק שלנו!
             <br />
-            כל אחד ואחת יכולים להשתתף!
+            בואו נמציא מילים ונבנה שפה ביחד.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link href="/create" className="btn-primary text-xl py-4 px-8">

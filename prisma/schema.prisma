@@ -105,6 +105,7 @@ model User {
   email              String     @unique
   emailVerified      DateTime?
   image              String?
+  passwordHash       String?
   fullName           String     @default("")
   age                Int        @default(0)
   role               UserRole   @default(USER)

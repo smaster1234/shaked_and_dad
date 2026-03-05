@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import EmailProvider from "next-auth/providers/email";
 import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 import type { Adapter } from "next-auth/adapters";
 
@@ -19,20 +20,25 @@ export const authOptions: NextAuthOptions = {
       },
       from: process.env.EMAIL_FROM || "noreply@shakdol.com",
     }),
-    // Credentials provider for development/testing
+    // Credentials provider for admin login with password
     CredentialsProvider({
       id: "credentials",
-      name: "Development Login",
+      name: "כניסה עם סיסמה",
       credentials: {
         email: { label: "אימייל", type: "email" },
+        password: { label: "סיסמה", type: "password" },
       },
       async authorize(credentials) {
-        if (process.env.NODE_ENV !== "development") return null;
-        if (!credentials?.email) return null;
+        if (!credentials?.email || !credentials?.password) return null;
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
+
+        if (!user || !user.passwordHash) return null;
+
+        const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
+        if (!isValid) return null;
 
         return user;
       },

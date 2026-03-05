@@ -4,8 +4,8 @@ import Providers from "@/components/Providers";
 import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
-  title: "שקדול - המילון שאנחנו בונים יחד!",
-  description: "בואו להמציא מילים חדשות ולבנות שפה חדשה ומיוחדת יחד!",
+  title: "שקדול - השפה החדשה שהיא רק שלנו!",
+  description: "שקדול, השפה החדשה שהיא רק שלנו! בואו להמציא מילים ולבנות שפה ביחד.",
 };
 
 export default function RootLayout({

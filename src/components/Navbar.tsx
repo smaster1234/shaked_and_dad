@@ -27,7 +27,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2" aria-label="שקדול - עמוד הבית">
             <span className="text-2xl font-bold text-amber-600">שקדול</span>
-            <span className="text-sm text-gray-500 hidden sm:inline">המילון שלנו</span>
+            <span className="text-sm text-gray-500 hidden sm:inline">השפה שהיא רק שלנו</span>
           </Link>
 
           {/* Desktop Nav */}
