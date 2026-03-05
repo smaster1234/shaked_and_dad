@@ -8,19 +8,32 @@ interface AdminWord {
   meaning: string;
   startingLetter: string;
   status: string;
-  submittedBy: { fullName: string; email: string };
+  submittedBy: { id: string; fullName: string; email: string };
   submissionTime: number;
   createdAt: string;
+}
+
+interface SimpleUser {
+  id: string;
+  fullName: string;
 }
 
 export default function AdminWordsPage() {
   const [words, setWords] = useState<AdminWord[]>([]);
   const [filter, setFilter] = useState<string>("PENDING");
   const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<SimpleUser[]>([]);
+  const [reassignWordId, setReassignWordId] = useState<number | null>(null);
 
   useEffect(() => {
     fetchWords();
   }, [filter]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    fetch("/api/admin/users").then(r => r.json()).then(d => {
+      setUsers((d.users || []).map((u: SimpleUser) => ({ id: u.id, fullName: u.fullName })));
+    }).catch(() => {});
+  }, []);
 
   async function fetchWords() {
     setLoading(true);
@@ -44,6 +57,20 @@ export default function AdminWordsPage() {
       fetchWords();
     } catch {
       alert("שגיאה בביצוע הפעולה");
+    }
+  }
+
+  async function handleReassign(wordId: number, newSubmitterId: string) {
+    try {
+      await fetch("/api/admin/words", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ wordId, action: "reassign", newSubmitterId }),
+      });
+      setReassignWordId(null);
+      fetchWords();
+    } catch {
+      alert("שגיאה בשינוי המגיש");
     }
   }
 
@@ -103,11 +130,36 @@ export default function AdminWordsPage() {
                     <h3 className="text-lg font-bold">{w.word}</h3>
                   </div>
                   <p className="text-gray-600 mt-1">{w.meaning}</p>
-                  <div className="flex gap-4 mt-2 text-xs text-gray-400">
+                  <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-400 items-center">
                     <span>הגיש/ה: {w.submittedBy.fullName}</span>
+                    <button
+                      onClick={() => setReassignWordId(reassignWordId === w.id ? null : w.id)}
+                      className="text-purple-500 hover:text-purple-700 underline"
+                    >
+                      שנה מגיש
+                    </button>
                     <span>זמן: {w.submissionTime} שניות</span>
                     <span>{new Date(w.createdAt).toLocaleDateString("he-IL")}</span>
                   </div>
+
+                  {/* Reassign dropdown */}
+                  {reassignWordId === w.id && (
+                    <div className="mt-2 p-3 bg-purple-50 rounded-lg">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">בחרו משתמש חדש:</label>
+                      <select
+                        className="input-field text-sm"
+                        defaultValue=""
+                        onChange={(e) => {
+                          if (e.target.value) handleReassign(w.id, e.target.value);
+                        }}
+                      >
+                        <option value="" disabled>בחרו משתמש...</option>
+                        {users.filter(u => u.id !== w.submittedBy.id).map(u => (
+                          <option key={u.id} value={u.id}>{u.fullName}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
 
                 {filter === "PENDING" && (

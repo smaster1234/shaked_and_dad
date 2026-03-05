@@ -6,25 +6,26 @@ interface Setting {
   key: string;
   value: string;
   label: string;
+  type: "number" | "select";
+  options?: { value: string; label: string }[];
 }
 
-const SETTING_LABELS: Record<string, string> = {
-  timerDuration: "זמן להגשה (שניות)",
-  maxWordLength: "אורך מילה מקסימלי",
-  maxMeaningSentences: "מקסימום משפטים בהסבר",
-  maxDailySubmissions: "מקסימום הגשות ליום",
-  suspendDuration24h: "השעיה קצרה (שעות)",
-  suspendDuration10d: "השעיה ארוכה (ימים)",
-};
+const GEMINI_MODELS = [
+  { value: "gemini-2.0-flash-lite", label: "Gemini 2.0 Flash Lite (הכי זול)" },
+  { value: "gemini-2.0-flash", label: "Gemini 2.0 Flash" },
+  { value: "gemini-1.5-flash", label: "Gemini 1.5 Flash" },
+  { value: "gemini-1.5-pro", label: "Gemini 1.5 Pro (הכי חזק)" },
+];
 
-const DEFAULT_SETTINGS: Record<string, string> = {
-  timerDuration: "60",
-  maxWordLength: "12",
-  maxMeaningSentences: "2",
-  maxDailySubmissions: "10",
-  suspendDuration24h: "24",
-  suspendDuration10d: "240",
-};
+const SETTING_DEFS: { key: string; label: string; type: "number" | "select"; default: string; options?: { value: string; label: string }[] }[] = [
+  { key: "timerDuration", label: "זמן להגשה (שניות)", type: "number", default: "60" },
+  { key: "maxWordLength", label: "אורך מילה מקסימלי", type: "number", default: "12" },
+  { key: "maxMeaningSentences", label: "מקסימום משפטים בהסבר", type: "number", default: "2" },
+  { key: "maxDailySubmissions", label: "מקסימום הגשות ליום", type: "number", default: "10" },
+  { key: "suspendDuration24h", label: "השעיה קצרה (שעות)", type: "number", default: "24" },
+  { key: "suspendDuration10d", label: "השעיה ארוכה (ימים)", type: "number", default: "240" },
+  { key: "geminiModel", label: "מודל Gemini (Google AI)", type: "select", default: "gemini-2.0-flash-lite", options: GEMINI_MODELS },
+];
 
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<Setting[]>([]);
@@ -40,19 +41,22 @@ export default function AdminSettingsPage() {
     try {
       const res = await fetch("/api/admin/settings");
       const data = await res.json();
-      const settingsList = Object.keys(SETTING_LABELS).map((key) => ({
-        key,
-        value: data.settings?.[key] || DEFAULT_SETTINGS[key] || "",
-        label: SETTING_LABELS[key],
+      const settingsList = SETTING_DEFS.map((def) => ({
+        key: def.key,
+        value: data.settings?.[def.key] || def.default,
+        label: def.label,
+        type: def.type,
+        options: def.options,
       }));
       setSettings(settingsList);
     } catch {
-      // Use defaults
       setSettings(
-        Object.keys(SETTING_LABELS).map((key) => ({
-          key,
-          value: DEFAULT_SETTINGS[key] || "",
-          label: SETTING_LABELS[key],
+        SETTING_DEFS.map((def) => ({
+          key: def.key,
+          value: def.default,
+          label: def.label,
+          type: def.type,
+          options: def.options,
         }))
       );
     }
@@ -91,18 +95,36 @@ export default function AdminSettingsPage() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 {setting.label}
               </label>
-              <input
-                type="number"
-                value={setting.value}
-                onChange={(e) =>
-                  setSettings((prev) =>
-                    prev.map((s) =>
-                      s.key === setting.key ? { ...s, value: e.target.value } : s
+              {setting.type === "select" ? (
+                <select
+                  value={setting.value}
+                  onChange={(e) =>
+                    setSettings((prev) =>
+                      prev.map((s) =>
+                        s.key === setting.key ? { ...s, value: e.target.value } : s
+                      )
                     )
-                  )
-                }
-                className="input-field"
-              />
+                  }
+                  className="input-field"
+                >
+                  {setting.options?.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="number"
+                  value={setting.value}
+                  onChange={(e) =>
+                    setSettings((prev) =>
+                      prev.map((s) =>
+                        s.key === setting.key ? { ...s, value: e.target.value } : s
+                      )
+                    )
+                  }
+                  className="input-field"
+                />
+              )}
             </div>
           ))}
 

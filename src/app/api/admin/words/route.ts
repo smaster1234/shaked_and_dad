@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   const words = await prisma.word.findMany({
     where: { status: status as "PENDING" | "APPROVED" | "REJECTED" },
     include: {
-      submittedBy: { select: { fullName: true, email: true } },
+      submittedBy: { select: { id: true, fullName: true, email: true } },
     },
     orderBy: { createdAt: "desc" },
     take: 50,
@@ -35,10 +35,35 @@ export async function PATCH(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "אין הרשאה" }, { status: 403 });
 
   const body = await req.json();
-  const { wordId, action, reviewNote } = body;
+  const { wordId, action, reviewNote, newSubmitterId } = body;
 
   if (!wordId || !action) {
     return NextResponse.json({ error: "חסרים פרטים" }, { status: 400 });
+  }
+
+  // Reassign word to a different user
+  if (action === "reassign") {
+    if (!newSubmitterId) {
+      return NextResponse.json({ error: "חסר מזהה משתמש חדש" }, { status: 400 });
+    }
+    const targetUser = await prisma.user.findUnique({ where: { id: newSubmitterId } });
+    if (!targetUser) {
+      return NextResponse.json({ error: "משתמש לא נמצא" }, { status: 404 });
+    }
+    const word = await prisma.word.update({
+      where: { id: wordId },
+      data: { submittedById: newSubmitterId },
+    });
+    await prisma.adminAuditLog.create({
+      data: {
+        adminId: session.user.id,
+        action: "APPROVE_WORD",
+        targetType: "WORD",
+        targetId: wordId.toString(),
+        details: { action: "reassign", word: word.word, newSubmitter: targetUser.fullName },
+      },
+    });
+    return NextResponse.json({ success: true });
   }
 
   const newStatus = action === "approve" ? "APPROVED" : "REJECTED";

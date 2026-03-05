@@ -29,10 +29,21 @@ export async function GET() {
       suspendedUntil: true,
       createdAt: true,
       _count: { select: { submittedWords: true } },
+      submittedWords: {
+        select: { status: true },
+      },
     },
   });
 
-  return NextResponse.json({ users });
+  const usersWithStats = users.map((u) => {
+    const approved = u.submittedWords.filter((w) => w.status === "APPROVED").length;
+    const pending = u.submittedWords.filter((w) => w.status === "PENDING").length;
+    const rejected = u.submittedWords.filter((w) => w.status === "REJECTED").length;
+    const { submittedWords: _, ...rest } = u; // eslint-disable-line @typescript-eslint/no-unused-vars
+    return { ...rest, wordStats: { total: u._count.submittedWords, approved, pending, rejected } };
+  });
+
+  return NextResponse.json({ users: usersWithStats });
 }
 
 export async function PATCH(req: NextRequest) {

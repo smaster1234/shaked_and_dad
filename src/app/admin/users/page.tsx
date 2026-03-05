@@ -13,6 +13,7 @@ interface AdminUser {
   suspendedUntil: string | null;
   createdAt: string;
   _count: { submittedWords: number };
+  wordStats: { total: number; approved: number; pending: number; rejected: number };
 }
 
 export default function AdminUsersPage() {
@@ -55,7 +56,7 @@ export default function AdminUsersPage() {
 
   const statusLabels: Record<string, { text: string; color: string }> = {
     ACTIVE: { text: "פעיל", color: "bg-emerald-100 text-emerald-700" },
-    WARNED: { text: "קיבל אזהרה", color: "bg-amber-100 text-amber-700" },
+    WARNED: { text: "אזהרה", color: "bg-amber-100 text-amber-700" },
     SUSPENDED: { text: "מושעה", color: "bg-orange-100 text-orange-700" },
     BANNED: { text: "חסום", color: "bg-red-100 text-red-700" },
   };
@@ -66,9 +67,40 @@ export default function AdminUsersPage() {
     COMMITTEE: "ועדה",
   };
 
+  // Summary stats
+  const totalUsers = users.length;
+  const activeUsers = users.filter(u => u.status === "ACTIVE").length;
+  const warnedUsers = users.filter(u => u.status === "WARNED").length;
+  const suspendedUsers = users.filter(u => u.status === "SUSPENDED").length;
+  const bannedUsers = users.filter(u => u.status === "BANNED").length;
+
   return (
     <div>
       <h1 className="section-title">ניהול משתמשים</h1>
+
+      {/* Summary cards */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+        <div className="card text-center py-3">
+          <div className="text-2xl font-bold text-blue-600">{totalUsers}</div>
+          <div className="text-xs text-gray-500">סה&quot;כ</div>
+        </div>
+        <div className="card text-center py-3">
+          <div className="text-2xl font-bold text-emerald-600">{activeUsers}</div>
+          <div className="text-xs text-gray-500">פעילים</div>
+        </div>
+        <div className="card text-center py-3">
+          <div className="text-2xl font-bold text-amber-600">{warnedUsers}</div>
+          <div className="text-xs text-gray-500">אזהרה</div>
+        </div>
+        <div className="card text-center py-3">
+          <div className="text-2xl font-bold text-orange-600">{suspendedUsers}</div>
+          <div className="text-xs text-gray-500">מושעים</div>
+        </div>
+        <div className="card text-center py-3">
+          <div className="text-2xl font-bold text-red-600">{bannedUsers}</div>
+          <div className="text-xs text-gray-500">חסומים</div>
+        </div>
+      </div>
 
       <div className="mb-6">
         <input
@@ -93,7 +125,10 @@ export default function AdminUsersPage() {
                 <th className="p-3">תפקיד</th>
                 <th className="p-3">סטטוס</th>
                 <th className="p-3">אזהרות</th>
-                <th className="p-3">מילים</th>
+                <th className="p-3">תרומות</th>
+                <th className="p-3">אושרו</th>
+                <th className="p-3">ממתינות</th>
+                <th className="p-3">נדחו</th>
                 <th className="p-3">פעולות</th>
               </tr>
             </thead>
@@ -110,7 +145,10 @@ export default function AdminUsersPage() {
                     </span>
                   </td>
                   <td className="p-3">{u.warningCount}</td>
-                  <td className="p-3">{u._count.submittedWords}</td>
+                  <td className="p-3 font-medium">{u.wordStats.total}</td>
+                  <td className="p-3 text-emerald-600">{u.wordStats.approved}</td>
+                  <td className="p-3 text-amber-600">{u.wordStats.pending}</td>
+                  <td className="p-3 text-red-500">{u.wordStats.rejected}</td>
                   <td className="p-3">
                     <div className="flex gap-1">
                       {u.status !== "BANNED" && (

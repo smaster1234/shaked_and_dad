@@ -29,6 +29,7 @@ async function main() {
     { key: "maxDailySubmissions", value: "10" },
     { key: "suspendDuration24h", value: "24" },
     { key: "suspendDuration10d", value: "240" },
+    { key: "geminiModel", value: "gemini-2.0-flash-lite" },
   ];
 
   for (const setting of defaultSettings) {

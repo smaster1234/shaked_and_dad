@@ -33,6 +33,9 @@ export default async function AdminLayout({
               <Link href="/admin/logs" className="hover:text-purple-200 transition-colors flex-shrink-0">
                 לוגים
               </Link>
+              <Link href="/admin/costs" className="hover:text-purple-200 transition-colors flex-shrink-0">
+                עלויות
+              </Link>
               <Link href="/admin/settings" className="hover:text-purple-200 transition-colors flex-shrink-0">
                 הגדרות
               </Link>
