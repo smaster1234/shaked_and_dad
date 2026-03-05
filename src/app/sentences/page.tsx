@@ -246,6 +246,12 @@ export default function SentencesPage() {
               <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm">{error}</div>
             )}
 
+            {!submitting && text.trim() && meaning.trim() && selectedWords.length === 0 && (
+              <div className="bg-orange-50 text-orange-600 p-3 rounded-xl text-sm font-medium">
+                כדי לשלוח משפט, צריך לבחור לפחות מילה אחת מהמילון למעלה
+              </div>
+            )}
+
             <div className="flex gap-3">
               <button
                 type="submit"
