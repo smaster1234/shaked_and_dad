@@ -21,13 +21,13 @@ export default function Navbar() {
   const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "COMMITTEE";
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50" role="navigation" aria-label="תפריט ראשי">
+    <nav className="glass-strong border-b border-amber-100/40 sticky top-0 z-50 shadow-sm" role="navigation" aria-label="תפריט ראשי">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2" aria-label="שקדול - עמוד הבית">
-            <span className="text-2xl font-bold text-amber-600">שקדול</span>
-            <span className="text-sm text-gray-500 hidden sm:inline">השפה שהיא רק שלנו</span>
+          <Link href="/" className="flex items-center gap-2 group" aria-label="שקדול - עמוד הבית">
+            <span className="text-2xl font-bold gradient-text group-hover:scale-105 transition-transform">שקדול</span>
+            <span className="text-sm text-gray-400 hidden sm:inline">השפה שהיא רק שלנו</span>
           </Link>
 
           {/* Desktop Nav */}

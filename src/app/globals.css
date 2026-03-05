@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  --background: #fefce8;
+  --background: #fffbeb;
   --foreground: #1c1917;
   --primary: #d97706;
   --primary-hover: #b45309;
@@ -14,7 +14,7 @@
   --warning: #f59e0b;
   --success: #10b981;
   --card: #ffffff;
-  --card-border: #e5e7eb;
+  --card-border: #f3e8d0;
   --muted: #6b7280;
 }
 
@@ -48,27 +48,50 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, #d97706, #ea580c, #dc2626);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-bold py-3 px-6 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 text-lg;
+    @apply bg-gradient-to-l from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold py-3 px-6 rounded-2xl transition-all duration-300 shadow-lg shadow-amber-200/50 hover:shadow-xl hover:shadow-amber-300/50 active:scale-95 text-lg hover:-translate-y-0.5;
   }
 
   .btn-secondary {
-    @apply bg-[var(--secondary)] hover:bg-[var(--secondary-hover)] text-white font-bold py-3 px-6 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg active:scale-95 text-lg;
+    @apply bg-gradient-to-l from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold py-3 px-6 rounded-2xl transition-all duration-300 shadow-lg shadow-emerald-200/50 hover:shadow-xl hover:shadow-emerald-300/50 active:scale-95 text-lg hover:-translate-y-0.5;
   }
 
   .btn-danger {
-    @apply bg-[var(--danger)] hover:bg-red-700 text-white font-bold py-2 px-4 rounded-xl transition-all duration-200;
+    @apply bg-gradient-to-l from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-2 px-4 rounded-2xl transition-all duration-300;
   }
 
   .card {
-    @apply bg-[var(--card)] border border-[var(--card-border)] rounded-2xl shadow-sm p-6;
+    @apply bg-white/80 backdrop-blur-sm border border-amber-100/60 rounded-2xl shadow-sm shadow-amber-100/30 p-6 transition-all duration-300;
+  }
+
+  .card-hover {
+    @apply card hover:shadow-lg hover:shadow-amber-200/30 hover:-translate-y-1 hover:border-amber-200/80;
   }
 
   .input-field {
-    @apply w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-lg focus:outline-none focus:border-amber-600 focus:ring-2 focus:ring-amber-200 transition-all duration-200;
+    @apply w-full border-2 border-amber-100 bg-white/80 rounded-2xl px-4 py-3 text-lg focus:outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-100 transition-all duration-300;
   }
 
   .page-container {
@@ -77,5 +100,9 @@ body {
 
   .section-title {
     @apply text-3xl font-bold text-[var(--foreground)] mb-6;
+  }
+
+  .badge {
+    @apply text-xs px-3 py-1 rounded-full font-medium;
   }
 }

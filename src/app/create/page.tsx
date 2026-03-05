@@ -126,15 +126,18 @@ export default function CreatePage() {
 
   return (
     <div className="page-container max-w-xl mx-auto mt-8">
-      <h1 className="text-3xl font-bold text-center mb-8">המציאו מילה חדשה!</h1>
+      <h1 className="text-3xl font-bold text-center mb-8">
+        <span className="gradient-text">המציאו מילה חדשה!</span>
+      </h1>
 
       {/* Idle state */}
       {gameState === "idle" && (
-        <div className="card text-center">
-          <p className="text-lg text-gray-600 mb-6">
+        <div className="card text-center animate-fade-in">
+          <div className="text-6xl mb-4 animate-bounce-gentle">🎯</div>
+          <p className="text-lg text-gray-500 mb-8 leading-relaxed">
             מוכנים? תקבלו אות אקראית ויהיו לכם 60 שניות להמציא מילה חדשה שמתחילה באות הזו!
           </p>
-          <button onClick={startGame} className="btn-primary text-xl py-4 px-8">
+          <button onClick={startGame} className="btn-primary text-xl py-4 px-10 animate-glow-pulse">
             יאללה, בואו נתחיל!
           </button>
         </div>
@@ -211,10 +214,10 @@ export default function CreatePage() {
 
       {/* Success state */}
       {gameState === "success" && (
-        <div className="card text-center">
-          <div className="text-5xl mb-4">🎉</div>
-          <h2 className="text-2xl font-bold text-emerald-600 mb-4">מעולה!</h2>
-          <p className="text-gray-600 mb-6">{successMessage}</p>
+        <div className="card text-center animate-scale-in">
+          <div className="text-6xl mb-4">🎉</div>
+          <h2 className="text-3xl font-bold text-emerald-500 mb-4">מעולה!</h2>
+          <p className="text-gray-500 mb-8 text-lg">{successMessage}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button onClick={() => { setGameState("idle"); setError(""); }} className="btn-primary">
               המציאו עוד מילה!
@@ -228,10 +231,10 @@ export default function CreatePage() {
 
       {/* Expired state */}
       {gameState === "expired" && (
-        <div className="card text-center">
-          <div className="text-5xl mb-4">⏰</div>
-          <h2 className="text-2xl font-bold text-amber-600 mb-4">אוי, נגמר הזמן!</h2>
-          <p className="text-gray-600 mb-6">לא נורא, אפשר לנסות שוב!</p>
+        <div className="card text-center animate-scale-in">
+          <div className="text-6xl mb-4">⏰</div>
+          <h2 className="text-3xl font-bold text-amber-500 mb-4">אוי, נגמר הזמן!</h2>
+          <p className="text-gray-500 mb-8 text-lg">לא נורא, אפשר לנסות שוב!</p>
           <button onClick={() => { setGameState("idle"); setError(""); }} className="btn-primary">
             ננסה שוב!
           </button>
@@ -240,10 +243,10 @@ export default function CreatePage() {
 
       {/* Error state */}
       {gameState === "error" && (
-        <div className="card text-center">
-          <div className="text-5xl mb-4">😔</div>
-          <h2 className="text-2xl font-bold text-red-600 mb-4">אופס</h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+        <div className="card text-center animate-scale-in">
+          <div className="text-6xl mb-4">😔</div>
+          <h2 className="text-3xl font-bold text-red-500 mb-4">אופס</h2>
+          <p className="text-gray-500 mb-8 text-lg">{error}</p>
           <button onClick={() => { setGameState("idle"); setError(""); }} className="btn-primary">
             חזרה
           </button>

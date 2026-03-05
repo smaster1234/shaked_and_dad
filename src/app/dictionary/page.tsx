@@ -44,8 +44,8 @@ export default function DictionaryPage() {
 
   return (
     <div className="page-container">
-      <h1 className="section-title text-center">מילון השקדול</h1>
-      <p className="text-center text-gray-500 mb-8">כל המילים שהומצאו ואושרו</p>
+      <h1 className="section-title text-center"><span className="gradient-text">מילון השקדול</span></h1>
+      <p className="text-center text-gray-400 mb-8 text-lg">כל המילים שהומצאו ואושרו</p>
 
       {/* Search */}
       <div className="max-w-md mx-auto mb-6">
@@ -62,10 +62,10 @@ export default function DictionaryPage() {
       <div className="flex flex-wrap gap-2 justify-center mb-8">
         <button
           onClick={() => { setSelectedLetter(null); setPage(1); }}
-          className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+          className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
             !selectedLetter
-              ? "bg-amber-600 text-white"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-gradient-to-l from-amber-500 to-amber-600 text-white shadow-md shadow-amber-200/50"
+              : "bg-white/70 text-gray-500 hover:bg-amber-50 border border-amber-100/50"
           }`}
         >
           הכל
@@ -74,10 +74,10 @@ export default function DictionaryPage() {
           <button
             key={l}
             onClick={() => { setSelectedLetter(l); setPage(1); }}
-            className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${
+            className={`w-10 h-10 rounded-xl text-sm font-bold transition-all duration-200 ${
               selectedLetter === l
-                ? "bg-amber-600 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                ? "bg-gradient-to-l from-amber-500 to-amber-600 text-white shadow-md shadow-amber-200/50 scale-110"
+                : "bg-white/70 text-gray-500 hover:bg-amber-50 hover:text-amber-600 border border-amber-100/50"
             }`}
           >
             {l}

@@ -75,22 +75,22 @@ export default function ProfilePage() {
   return (
     <div className="page-container max-w-3xl mx-auto">
       {/* Header */}
-      <div className="card mb-6">
-        <h1 className="text-2xl font-bold">{session.user.fullName || session.user.name}</h1>
-        <p className="text-sm text-gray-400">מספר סידורי: #{session.user.serialNumber}</p>
-        <p className="text-gray-500">{session.user.email}</p>
-        <div className="flex gap-6 mt-4">
-          <div>
-            <span className="text-2xl font-bold text-amber-600">{words.length}</span>
-            <span className="text-gray-500 mr-1">מילים</span>
+      <div className="card mb-6 bg-gradient-to-l from-amber-50/80 to-white/80">
+        <h1 className="text-2xl font-bold gradient-text">{session.user.fullName || session.user.name}</h1>
+        <p className="text-sm text-gray-300 font-mono mt-1">#{session.user.serialNumber}</p>
+        <p className="text-gray-400 text-sm">{session.user.email}</p>
+        <div className="grid grid-cols-3 gap-4 mt-6">
+          <div className="text-center p-3 rounded-xl bg-amber-50/80">
+            <div className="text-3xl font-bold text-amber-600">{words.length}</div>
+            <div className="text-xs text-gray-400 mt-1">סה&quot;כ מילים</div>
           </div>
-          <div>
-            <span className="text-2xl font-bold text-emerald-600">{approvedCount}</span>
-            <span className="text-gray-500 mr-1">מאושרות</span>
+          <div className="text-center p-3 rounded-xl bg-emerald-50/80">
+            <div className="text-3xl font-bold text-emerald-500">{approvedCount}</div>
+            <div className="text-xs text-gray-400 mt-1">מאושרות</div>
           </div>
-          <div>
-            <span className="text-2xl font-bold text-gray-400">{pendingCount}</span>
-            <span className="text-gray-500 mr-1">ממתינות</span>
+          <div className="text-center p-3 rounded-xl bg-gray-50/80">
+            <div className="text-3xl font-bold text-gray-400">{pendingCount}</div>
+            <div className="text-xs text-gray-400 mt-1">ממתינות</div>
           </div>
         </div>
       </div>
