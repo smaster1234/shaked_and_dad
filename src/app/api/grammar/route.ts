@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
 // GET - fetch all grammar rules grouped by category
 export async function GET() {
+  headers(); // Force dynamic rendering - prevents prerender during build
   try {
     const rules = await prisma.grammarRule.findMany({
       orderBy: [{ category: "asc" }, { createdAt: "asc" }],
