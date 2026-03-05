@@ -72,12 +72,13 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         const dbUser = await prisma.user.findUnique({
           where: { id: user.id },
-          select: { role: true, status: true, fullName: true, serialNumber: true },
+          select: { role: true, status: true, fullName: true, firstName: true, serialNumber: true },
         });
         if (dbUser) {
           token.role = dbUser.role;
           token.status = dbUser.status;
           token.fullName = dbUser.fullName;
+          token.firstName = dbUser.firstName;
           token.serialNumber = dbUser.serialNumber;
         }
       }
@@ -96,6 +97,6 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/auth/signin",
-    newUser: "/auth/register",
+    newUser: "/auth/complete-profile",
   },
 };
