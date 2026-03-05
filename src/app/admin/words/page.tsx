@@ -39,7 +39,7 @@ export default function AdminWordsPage() {
   async function fetchWords() {
     setLoading(true);
     try {
-      const res = await fetch(`/api/admin/words?status=${filter}`);
+      const res = await fetch(`/api/admin/words?status=${filter}`, { cache: "no-store" });
       const data = await res.json();
       setWords(data.words || []);
     } catch {
@@ -63,13 +63,18 @@ export default function AdminWordsPage() {
 
   async function handleReassign(wordId: number, newSubmitterId: string) {
     try {
-      await fetch("/api/admin/words", {
+      const res = await fetch("/api/admin/words", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ wordId, action: "reassign", newSubmitterId }),
       });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || "שגיאה בשינוי המגיש");
+        return;
+      }
       setReassignWordId(null);
-      fetchWords();
+      await fetchWords();
     } catch {
       alert("שגיאה בשינוי המגיש");
     }

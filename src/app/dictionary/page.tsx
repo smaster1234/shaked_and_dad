@@ -32,7 +32,7 @@ export default function DictionaryPage() {
     params.set("page", page.toString());
 
     try {
-      const res = await fetch(`/api/words?${params}`);
+      const res = await fetch(`/api/words?${params}`, { cache: "no-store" });
       const data = await res.json();
       setWords(data.words || []);
       setTotalPages(data.totalPages || 1);
