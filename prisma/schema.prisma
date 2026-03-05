@@ -36,6 +36,8 @@ enum ModerationAction {
 enum NotificationType {
   WORD_APPROVED
   WORD_REJECTED
+  SENTENCE_APPROVED
+  SENTENCE_REJECTED
   WARNING
   SUSPENSION
   BAN
@@ -46,6 +48,9 @@ enum AuditAction {
   APPROVE_WORD
   REJECT_WORD
   DELETE_WORD
+  APPROVE_SENTENCE
+  REJECT_SENTENCE
+  DELETE_SENTENCE
   SUSPEND_USER
   UNSUSPEND_USER
   BAN_USER
@@ -60,6 +65,7 @@ enum AuditAction {
 enum AuditTargetType {
   USER
   WORD
+  SENTENCE
   SETTING
 }
 

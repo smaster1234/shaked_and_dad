@@ -27,6 +27,9 @@ export default async function AdminLayout({
               <Link href="/admin/words" className="hover:text-purple-200 transition-colors flex-shrink-0">
                 מילים
               </Link>
+              <Link href="/admin/sentences" className="hover:text-purple-200 transition-colors flex-shrink-0">
+                משפטים
+              </Link>
               <Link href="/admin/users" className="hover:text-purple-200 transition-colors flex-shrink-0">
                 משתמשים
               </Link>

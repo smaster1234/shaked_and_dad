@@ -179,7 +179,7 @@ export default function SentencesPage() {
             <label className="block text-sm font-medium text-gray-500 mb-2">
               בחרו מילים מהמילון לשלב במשפט:
             </label>
-            <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-3 bg-gray-50/80 rounded-2xl border border-gray-100">
+            <div className="flex flex-wrap gap-2 max-h-64 overflow-y-auto p-3 bg-gray-50/80 rounded-2xl border border-gray-100">
               {availableWords.length === 0 ? (
                 <p className="text-gray-400 text-sm">טוענים מילים...</p>
               ) : (
@@ -193,9 +193,13 @@ export default function SentencesPage() {
                         ? "bg-gradient-to-l from-orange-500 to-pink-500 text-white shadow-md scale-105"
                         : "bg-white border border-gray-200 text-gray-600 hover:border-orange-300 hover:text-orange-600"
                     }`}
-                    title={w.meaning}
                   >
                     {w.word}
+                    <span className={`block text-xs font-normal ${
+                      selectedWords.includes(w.word) ? "text-white/80" : "text-gray-400"
+                    }`}>
+                      {w.meaning}
+                    </span>
                   </button>
                 ))
               )}
