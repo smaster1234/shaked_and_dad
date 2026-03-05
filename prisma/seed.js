@@ -46,12 +46,12 @@ async function main() {
 
   const seedUser = await prisma.user.upsert({
     where: { email: "shaked@shakdol.com" },
-    update: {},
+    update: { firstName: "שקד", lastName: "מובשוביץ", fullName: "שקד מובשוביץ" },
     create: {
       email: "shaked@shakdol.com",
       firstName: "שקד",
-      lastName: "מוביץ",
-      fullName: "שקד מוביץ",
+      lastName: "מובשוביץ",
+      fullName: "שקד מובשוביץ",
       age: 10,
       role: "USER",
       status: "ACTIVE",
