@@ -21,11 +21,11 @@ export default function Navbar() {
   const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "COMMITTEE";
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+    <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50" role="navigation" aria-label="תפריט ראשי">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2" aria-label="שקדול - עמוד הבית">
             <span className="text-2xl font-bold text-amber-600">שקדול</span>
             <span className="text-sm text-gray-500 hidden sm:inline">המילון שלנו</span>
           </Link>
@@ -47,7 +47,7 @@ export default function Navbar() {
                 <Link href="/profile" className="text-gray-600 hover:text-amber-600 transition-colors font-medium relative">
                   {session.user.fullName || session.user.name || "הפרופיל שלי"}
                   {unreadCount > 0 && (
-                    <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center" aria-label={`${unreadCount} התראות חדשות`}>
                       {unreadCount}
                     </span>
                   )}
@@ -75,9 +75,11 @@ export default function Navbar() {
           <button
             onClick={() => setMenuOpen(!menuOpen)}
             className="md:hidden p-2 text-gray-600"
-            aria-label="תפריט"
+            aria-label={menuOpen ? "סגירת תפריט" : "פתיחת תפריט"}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               {menuOpen ? (
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               ) : (
@@ -89,7 +91,7 @@ export default function Navbar() {
 
         {/* Mobile Nav */}
         {menuOpen && (
-          <div className="md:hidden pb-4 border-t border-gray-100 pt-2 animate-slide-up">
+          <div id="mobile-menu" className="md:hidden pb-4 border-t border-gray-100 pt-2 animate-slide-up">
             <div className="flex flex-col gap-3">
               <Link href="/dictionary" className="text-gray-600 hover:text-amber-600 py-2" onClick={() => setMenuOpen(false)}>
                 המילון

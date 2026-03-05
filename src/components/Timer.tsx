@@ -50,10 +50,10 @@ export default function Timer({ expiresAt, onExpired }: TimerProps) {
     : "bg-emerald-500";
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-3" role="timer" aria-live="polite" aria-label={`נותרו ${timeLeft} שניות`}>
       <div className={`relative w-24 h-24 ${isUrgent ? "animate-timer-pulse" : ""}`}>
         {/* Circle background */}
-        <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+        <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100" aria-hidden="true">
           <circle
             cx="50"
             cy="50"

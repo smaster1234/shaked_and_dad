@@ -15,10 +15,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="he" dir="rtl">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#d97706" />
+      </head>
       <body className="antialiased min-h-screen bg-background text-foreground">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:right-2 focus:z-[100] focus:bg-amber-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
+        >
+          דלגו לתוכן הראשי
+        </a>
         <Providers>
           <Navbar />
-          <main>{children}</main>
+          <main id="main-content" role="main">{children}</main>
         </Providers>
       </body>
     </html>

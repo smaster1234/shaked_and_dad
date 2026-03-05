@@ -190,7 +190,7 @@ export default function CreatePage() {
             </div>
 
             {error && (
-              <div className="bg-red-50 text-red-600 p-3 rounded-xl text-sm">{error}</div>
+              <div role="alert" className="bg-red-50 text-red-600 p-3 rounded-xl text-sm">{error}</div>
             )}
 
             <button
