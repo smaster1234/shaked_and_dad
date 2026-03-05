@@ -55,18 +55,26 @@ export default function SignInPage() {
       const res = await signIn("credentials", {
         email: email.trim(),
         password,
+        callbackUrl: "/create",
         redirect: false,
       });
 
+      console.log("signIn response:", JSON.stringify(res));
+
       if (res?.error) {
-        setError("אימייל או סיסמה שגויים");
+        if (res.error === "CredentialsSignin") {
+          setError("אימייל או סיסמה שגויים");
+        } else {
+          setError(`שגיאה בהתחברות: ${res.error}`);
+        }
       } else if (res?.ok) {
-        window.location.href = "/create";
+        window.location.href = res.url || "/create";
       } else {
-        setError("שגיאה בהתחברות. נסו שוב.");
+        setError("שגיאה בהתחברות - לא התקבלה תשובה מהשרת.");
       }
-    } catch {
-      setError("שגיאה. נסו שוב.");
+    } catch (err) {
+      console.error("signIn error:", err);
+      setError("שגיאה בחיבור לשרת. נסו שוב.");
     } finally {
       setLoading(false);
     }
