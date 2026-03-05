@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   const words = await prisma.word.findMany({
     where: { status: status as "PENDING" | "APPROVED" | "REJECTED" },
     include: {
-      submittedBy: { select: { id: true, fullName: true, email: true } },
+      submittedBy: { select: { id: true, serialNumber: true, fullName: true, email: true } },
     },
     orderBy: { createdAt: "desc" },
     take: 50,

@@ -170,7 +170,7 @@ export async function GET(req: NextRequest) {
       where,
       include: {
         submittedBy: {
-          select: { fullName: true },
+          select: { fullName: true, serialNumber: true },
         },
       },
       orderBy: { createdAt: "desc" },

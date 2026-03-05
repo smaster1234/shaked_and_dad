@@ -10,6 +10,7 @@ declare module "next-auth" {
       role: UserRole;
       status: UserStatus;
       fullName: string;
+      serialNumber: number;
     };
   }
 }
@@ -20,5 +21,6 @@ declare module "next-auth/jwt" {
     role: UserRole;
     status: UserStatus;
     fullName: string;
+    serialNumber: number;
   }
 }

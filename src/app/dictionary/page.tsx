@@ -9,7 +9,7 @@ interface WordData {
   word: string;
   meaning: string;
   startingLetter: string;
-  submittedBy: { fullName: string };
+  submittedBy: { fullName: string; serialNumber: number };
 }
 
 export default function DictionaryPage() {
@@ -105,7 +105,7 @@ export default function DictionaryPage() {
                 key={w.id}
                 word={w.word}
                 meaning={w.meaning}
-                author={w.submittedBy.fullName}
+                author={`${w.submittedBy.fullName} (#${w.submittedBy.serialNumber})`}
                 letter={w.startingLetter}
               />
             ))}

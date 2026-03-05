@@ -5,7 +5,8 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 
 export default function RegisterPage() {
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [age, setAge] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -17,8 +18,12 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
 
-    if (!fullName.trim()) {
-      setError("אנא הכניסו את השם המלא שלכם");
+    if (!firstName.trim()) {
+      setError("אנא הכניסו שם פרטי");
+      return;
+    }
+    if (!lastName.trim()) {
+      setError("אנא הכניסו שם משפחה");
       return;
     }
     if (!email.trim()) {
@@ -41,7 +46,8 @@ export default function RegisterPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fullName: fullName.trim(),
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
           email: email.trim(),
           age: parseInt(age),
           termsAccepted: true,
@@ -93,19 +99,35 @@ export default function RegisterPage() {
         <p className="text-center text-gray-500 mb-6">בחינם לגמרי!</p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div>
-            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
-              שם מלא
-            </label>
-            <input
-              id="fullName"
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              className="input-field"
-              placeholder="השם שלכם"
-              required
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+                שם פרטי
+              </label>
+              <input
+                id="firstName"
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="input-field"
+                placeholder="שם פרטי"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+                שם משפחה
+              </label>
+              <input
+                id="lastName"
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="input-field"
+                placeholder="שם משפחה"
+                required
+              />
+            </div>
           </div>
 
           <div>

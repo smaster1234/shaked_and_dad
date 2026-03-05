@@ -101,11 +101,14 @@ model VerificationToken {
 // App models
 model User {
   id                 String     @id @default(cuid())
+  serialNumber       Int        @unique @default(autoincrement())
   name               String?
   email              String     @unique
   emailVerified      DateTime?
   image              String?
   passwordHash       String?
+  firstName          String     @default("")
+  lastName           String     @default("")
   fullName           String     @default("")
   age                Int        @default(0)
   role               UserRole   @default(USER)

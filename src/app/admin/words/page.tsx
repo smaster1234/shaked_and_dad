@@ -8,7 +8,7 @@ interface AdminWord {
   meaning: string;
   startingLetter: string;
   status: string;
-  submittedBy: { id: string; fullName: string; email: string };
+  submittedBy: { id: string; fullName: string; serialNumber: number; email: string };
   submissionTime: number;
   createdAt: string;
 }
@@ -16,6 +16,7 @@ interface AdminWord {
 interface SimpleUser {
   id: string;
   fullName: string;
+  serialNumber: number;
 }
 
 export default function AdminWordsPage() {
@@ -31,7 +32,7 @@ export default function AdminWordsPage() {
 
   useEffect(() => {
     fetch("/api/admin/users").then(r => r.json()).then(d => {
-      setUsers((d.users || []).map((u: SimpleUser) => ({ id: u.id, fullName: u.fullName })));
+      setUsers((d.users || []).map((u: SimpleUser) => ({ id: u.id, fullName: u.fullName, serialNumber: u.serialNumber })));
     }).catch(() => {});
   }, []);
 
@@ -131,7 +132,7 @@ export default function AdminWordsPage() {
                   </div>
                   <p className="text-gray-600 mt-1">{w.meaning}</p>
                   <div className="flex flex-wrap gap-4 mt-2 text-xs text-gray-400 items-center">
-                    <span>הגיש/ה: {w.submittedBy.fullName}</span>
+                    <span>הגיש/ה: {w.submittedBy.fullName} (#{w.submittedBy.serialNumber})</span>
                     <button
                       onClick={() => setReassignWordId(reassignWordId === w.id ? null : w.id)}
                       className="text-purple-500 hover:text-purple-700 underline"
@@ -155,7 +156,7 @@ export default function AdminWordsPage() {
                       >
                         <option value="" disabled>בחרו משתמש...</option>
                         {users.filter(u => u.id !== w.submittedBy.id).map(u => (
-                          <option key={u.id} value={u.id}>{u.fullName}</option>
+                          <option key={u.id} value={u.id}>#{u.serialNumber} - {u.fullName}</option>
                         ))}
                       </select>
                     </div>

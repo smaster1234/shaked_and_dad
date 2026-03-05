@@ -9,7 +9,7 @@ interface LogEntry {
   reason: string;
   actionTaken: string;
   createdAt: string;
-  user: { fullName: string; email: string };
+  user: { fullName: string; serialNumber: number; email: string };
 }
 
 interface AuditEntry {
@@ -19,7 +19,7 @@ interface AuditEntry {
   targetId: string;
   details: Record<string, unknown>;
   createdAt: string;
-  admin: { fullName: string };
+  admin: { fullName: string; serialNumber: number };
 }
 
 export default function AdminLogsPage() {
@@ -99,7 +99,7 @@ export default function AdminLogsPage() {
               <div key={log.id} className="card">
                 <div className="flex justify-between items-start">
                   <div>
-                    <span className="font-bold">{log.user.fullName}</span>
+                    <span className="font-bold">{log.user.fullName} (#{log.user.serialNumber})</span>
                     <span className="text-gray-400 text-sm mr-2">({log.user.email})</span>
                   </div>
                   <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">
@@ -125,7 +125,7 @@ export default function AdminLogsPage() {
             auditLogs.map((log) => (
               <div key={log.id} className="card">
                 <div className="flex justify-between items-start">
-                  <span className="font-bold">{log.admin.fullName}</span>
+                  <span className="font-bold">{log.admin.fullName} (#{log.admin.serialNumber})</span>
                   <span className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full">
                     {actionLabels[log.action] || log.action}
                   </span>

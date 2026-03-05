@@ -4,6 +4,9 @@ import { useState, useEffect } from "react";
 
 interface AdminUser {
   id: string;
+  serialNumber: number;
+  firstName: string;
+  lastName: string;
   fullName: string;
   email: string;
   age: number;
@@ -51,7 +54,7 @@ export default function AdminUsersPage() {
   }
 
   const filteredUsers = users.filter(
-    (u) => u.fullName.includes(search) || u.email.includes(search)
+    (u) => u.firstName.includes(search) || u.lastName.includes(search) || u.fullName.includes(search) || u.email.includes(search)
   );
 
   const statusLabels: Record<string, { text: string; color: string }> = {
@@ -119,7 +122,9 @@ export default function AdminUsersPage() {
           <table className="w-full bg-white rounded-xl shadow-sm">
             <thead>
               <tr className="border-b text-right text-sm text-gray-500">
-                <th className="p-3">שם</th>
+                <th className="p-3">מס&apos;</th>
+                <th className="p-3">שם פרטי</th>
+                <th className="p-3">שם משפחה</th>
                 <th className="p-3">אימייל</th>
                 <th className="p-3">גיל</th>
                 <th className="p-3">תפקיד</th>
@@ -135,7 +140,9 @@ export default function AdminUsersPage() {
             <tbody>
               {filteredUsers.map((u) => (
                 <tr key={u.id} className="border-b hover:bg-gray-50">
-                  <td className="p-3 font-medium">{u.fullName}</td>
+                  <td className="p-3 text-sm text-gray-400 font-mono">#{u.serialNumber}</td>
+                  <td className="p-3 font-medium">{u.firstName}</td>
+                  <td className="p-3">{u.lastName}</td>
                   <td className="p-3 text-sm text-gray-500" dir="ltr">{u.email}</td>
                   <td className="p-3">{u.age}</td>
                   <td className="p-3 text-sm">{roleLabels[u.role]}</td>

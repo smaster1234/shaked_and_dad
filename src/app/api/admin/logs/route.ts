@@ -14,14 +14,14 @@ export async function GET(req: NextRequest) {
 
   if (type === "moderation") {
     const logs = await prisma.moderationLog.findMany({
-      include: { user: { select: { fullName: true, email: true } } },
+      include: { user: { select: { fullName: true, serialNumber: true, email: true } } },
       orderBy: { createdAt: "desc" },
       take: 50,
     });
     return NextResponse.json({ logs });
   } else {
     const logs = await prisma.adminAuditLog.findMany({
-      include: { admin: { select: { fullName: true } } },
+      include: { admin: { select: { fullName: true, serialNumber: true } } },
       orderBy: { createdAt: "desc" },
       take: 50,
     });

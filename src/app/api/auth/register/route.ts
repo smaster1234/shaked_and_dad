@@ -3,9 +3,9 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { fullName, email, age, termsAccepted } = body;
+  const { firstName, lastName, email, age, termsAccepted } = body;
 
-  if (!fullName || !email || !age) {
+  if (!firstName || !lastName || !email || !age) {
     return NextResponse.json({ error: "כל השדות חובה" }, { status: 400 });
   }
 
@@ -28,12 +28,14 @@ export async function POST(req: NextRequest) {
 
   const user = await prisma.user.create({
     data: {
-      fullName: fullName.trim(),
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      fullName: `${firstName.trim()} ${lastName.trim()}`,
       email: email.trim(),
       age,
       termsAcceptedAt: new Date(),
     },
   });
 
-  return NextResponse.json({ success: true, userId: user.id });
+  return NextResponse.json({ success: true, userId: user.id, serialNumber: user.serialNumber });
 }

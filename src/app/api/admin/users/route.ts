@@ -20,6 +20,9 @@ export async function GET() {
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
+      serialNumber: true,
+      firstName: true,
+      lastName: true,
       fullName: true,
       email: true,
       age: true,

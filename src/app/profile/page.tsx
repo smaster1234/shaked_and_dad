@@ -77,6 +77,7 @@ export default function ProfilePage() {
       {/* Header */}
       <div className="card mb-6">
         <h1 className="text-2xl font-bold">{session.user.fullName || session.user.name}</h1>
+        <p className="text-sm text-gray-400">מספר סידורי: #{session.user.serialNumber}</p>
         <p className="text-gray-500">{session.user.email}</p>
         <div className="flex gap-6 mt-4">
           <div>
