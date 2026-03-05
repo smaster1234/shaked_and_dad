@@ -6,12 +6,16 @@ interface LetterWheelProps {
 
 export default function LetterWheel({ letter }: LetterWheelProps) {
   return (
-    <div className="flex flex-col items-center gap-3 animate-scale-in">
+    <div className="flex flex-col items-center gap-4 animate-scale-in">
       <span className="text-lg text-gray-400 font-medium">האות שלכם היא:</span>
       <div className="relative">
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full blur-xl opacity-40 animate-glow-pulse" />
-        <div className="relative w-36 h-36 rounded-full bg-gradient-to-br from-amber-400 via-amber-500 to-orange-600 flex items-center justify-center shadow-2xl shadow-amber-300/50">
-          <span className="text-7xl font-bold text-white drop-shadow-lg">{letter}</span>
+        {/* Outer glow */}
+        <div className="absolute inset-[-12px] bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 rounded-full blur-2xl opacity-30 animate-glow-pulse" />
+        {/* Inner ring */}
+        <div className="relative w-40 h-40 rounded-full p-1 bg-gradient-to-br from-orange-400 via-pink-500 to-purple-600 shadow-2xl">
+          <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
+            <span className="text-8xl font-black gradient-text-fun">{letter}</span>
+          </div>
         </div>
       </div>
       <span className="text-sm text-gray-400">
