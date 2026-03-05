@@ -55,6 +55,9 @@ export default async function HomePage() {
             <Link href="/create" className="btn-primary text-xl py-5 px-12 rounded-3xl animate-glow-pulse">
               בואו נמציא מילה!
             </Link>
+            <Link href="/sentences" className="btn-outline text-xl py-5 px-12 rounded-3xl border-purple-300 text-purple-600 hover:bg-purple-50">
+              כתבו משפט בשקדולית
+            </Link>
             <Link href="/dictionary" className="btn-outline text-xl py-5 px-12 rounded-3xl">
               צפו במילון
             </Link>
@@ -168,6 +171,24 @@ export default async function HomePage() {
               </Link>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Sentences CTA */}
+      <section className="py-20">
+        <div className="page-container">
+          <div className="card bg-gradient-to-l from-purple-50/80 to-indigo-50/80 border-purple-200/40 text-center max-w-3xl mx-auto p-12">
+            <div className="text-6xl mb-4">💬</div>
+            <h2 className="text-3xl font-black mb-4">
+              <span className="gradient-text-fun">כתבו משפטים</span> בשקדולית!
+            </h2>
+            <p className="text-gray-400 text-lg mb-8 max-w-md mx-auto">
+              שלבו את המילים שהומצאו במשפטים יצירתיים. ללא הגבלת זמן - קחו את הזמן שלכם!
+            </p>
+            <Link href="/sentences" className="btn-primary text-lg py-4 px-10 rounded-2xl bg-gradient-to-l from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600">
+              בואו נכתוב משפט!
+            </Link>
+          </div>
         </div>
       </section>
 
