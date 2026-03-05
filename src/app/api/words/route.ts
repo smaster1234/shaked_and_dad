@@ -94,13 +94,21 @@ export async function POST(req: NextRequest) {
     (Date.now() - wordSession.startedAt.getTime()) / 1000
   );
 
-  // Save word
+  // Get user info for permanent credit
+  const submitter = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { fullName: true, email: true },
+  });
+
+  // Save word with permanent credit fields
   const newWord = await prisma.word.create({
     data: {
       word: word.trim(),
       meaning: meaning.trim(),
       startingLetter: wordSession.letter,
       submittedById: userId,
+      submitterName: submitter?.fullName || "",
+      submitterEmail: submitter?.email || "",
       submissionTime,
       sessionToken: sessionId,
     },
@@ -180,8 +188,14 @@ export async function GET(req: NextRequest) {
     prisma.word.count({ where }),
   ]);
 
+  // Use submitterName as fallback if user was deleted
+  const wordsWithCredit = words.map((w) => ({
+    ...w,
+    submittedBy: w.submittedBy || { fullName: w.submitterName || "משתמש שנמחק", serialNumber: null },
+  }));
+
   return NextResponse.json({
-    words,
+    words: wordsWithCredit,
     total,
     page,
     totalPages: Math.ceil(total / limit),

@@ -9,11 +9,22 @@ interface CostData {
   byOperation: { operation: string; _sum: { totalTokens: number; estimatedCost: number }; _count: number }[];
   byModel: { model: string; _sum: { totalTokens: number; estimatedCost: number }; _count: number }[];
   recentLogs: { id: string; model: string; operation: string; inputTokens: number; outputTokens: number; estimatedCost: number; createdAt: string }[];
+  email: {
+    allTime: { totalEmails: number; estimatedCost: number };
+    last30Days: { totalEmails: number; estimatedCost: number };
+    today: { totalEmails: number; estimatedCost: number };
+    byType: { type: string; _sum: { estimatedCost: number }; _count: number }[];
+  };
 }
 
 const operationLabels: Record<string, string> = {
   content_safety: "סינון תוכן",
   pronounceability: "בדיקת הגייה",
+};
+
+const emailTypeLabels: Record<string, string> = {
+  magic_link: "קישור התחברות",
+  notification: "התראה",
 };
 
 export default function AdminCostsPage() {
@@ -36,7 +47,7 @@ export default function AdminCostsPage() {
 
   return (
     <div>
-      <h1 className="section-title">עלויות LLM</h1>
+      <h1 className="section-title">עלויות שירותים</h1>
 
       {/* Summary cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -104,7 +115,7 @@ export default function AdminCostsPage() {
 
       {/* Recent logs */}
       <div className="card">
-        <h3 className="font-bold mb-3">קריאות אחרונות</h3>
+        <h3 className="font-bold mb-3">קריאות LLM אחרונות</h3>
         {data.recentLogs.length === 0 ? (
           <p className="text-gray-400 text-sm">אין קריאות עדיין</p>
         ) : (
@@ -136,6 +147,46 @@ export default function AdminCostsPage() {
           </div>
         )}
       </div>
+
+      {/* Resend Email Costs */}
+      {data.email && (
+        <>
+          <h2 className="section-title mt-8">עלויות Resend (אימיילים)</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="card">
+              <h3 className="text-sm text-gray-500 mb-1">היום</h3>
+              <div className="text-2xl font-bold text-blue-600">{formatCost(data.email.today.estimatedCost)}</div>
+              <div className="text-xs text-gray-400 mt-1">{data.email.today.totalEmails} אימיילים</div>
+            </div>
+            <div className="card">
+              <h3 className="text-sm text-gray-500 mb-1">30 ימים אחרונים</h3>
+              <div className="text-2xl font-bold text-amber-600">{formatCost(data.email.last30Days.estimatedCost)}</div>
+              <div className="text-xs text-gray-400 mt-1">{data.email.last30Days.totalEmails} אימיילים</div>
+            </div>
+            <div className="card">
+              <h3 className="text-sm text-gray-500 mb-1">סה&quot;כ</h3>
+              <div className="text-2xl font-bold text-emerald-600">{formatCost(data.email.allTime.estimatedCost)}</div>
+              <div className="text-xs text-gray-400 mt-1">{data.email.allTime.totalEmails} אימיילים</div>
+            </div>
+          </div>
+
+          {data.email.byType.length > 0 && (
+            <div className="card mb-8">
+              <h3 className="font-bold mb-3">לפי סוג אימייל</h3>
+              <div className="flex flex-col gap-2">
+                {data.email.byType.map((t) => (
+                  <div key={t.type} className="flex justify-between items-center text-sm">
+                    <span>{emailTypeLabels[t.type] || t.type}</span>
+                    <span className="text-gray-500">
+                      {t._count} אימיילים | {formatCost(t._sum.estimatedCost || 0)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

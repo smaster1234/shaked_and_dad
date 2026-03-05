@@ -96,7 +96,10 @@ export default function RegisterPage() {
     <div className="page-container max-w-md mx-auto mt-8">
       <div className="card">
         <h1 className="text-3xl font-bold text-center mb-2">הרשמה לשקדול</h1>
-        <p className="text-center text-gray-500 mb-6">בחינם לגמרי!</p>
+        <p className="text-center text-gray-500 mb-4">בחינם לגמרי!</p>
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 text-sm text-amber-800">
+          <strong>שימו לב:</strong> השם שלכם יופיע כקרדיט קבוע על כל מילה שתכניסו לשפה. ודאו שאתם רושמים את שמכם האמיתי - זה לא ישתנה.
+        </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-3">

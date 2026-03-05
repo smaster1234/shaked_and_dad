@@ -53,6 +53,8 @@ enum AuditAction {
   WARN_USER
   CHANGE_SETTING
   CHANGE_USER_ROLE
+  DELETE_USER
+  RENAME_USER
 }
 
 enum AuditTargetType {
@@ -137,34 +139,37 @@ model Word {
   meaning        String
   startingLetter String
   status         WordStatus @default(PENDING)
-  submittedById  String
+  submittedById  String?
   reviewedById   String?
   reviewNote     String?
   submissionTime Int
   sessionToken   String?
+  // Permanent credit fields - never change even if user is deleted
+  submitterName  String     @default("")
+  submitterEmail String     @default("")
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
 
-  submittedBy   User           @relation("SubmittedWords", fields: [submittedById], references: [id])
-  reviewedBy    User?          @relation("ReviewedWords", fields: [reviewedById], references: [id])
+  submittedBy   User?          @relation("SubmittedWords", fields: [submittedById], references: [id], onDelete: SetNull)
+  reviewedBy    User?          @relation("ReviewedWords", fields: [reviewedById], references: [id], onDelete: SetNull)
   notifications Notification[]
 }
 
 model ModerationLog {
   id             String           @id @default(cuid())
-  userId         String
+  userId         String?
   wordAttempt    String
   meaningAttempt String
   reason         String
   actionTaken    ModerationAction
   createdAt      DateTime         @default(now())
 
-  user User @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
 
 model Notification {
   id        String           @id @default(cuid())
-  userId    String
+  userId    String?
   type      NotificationType
   title     String
   message   String
@@ -172,31 +177,31 @@ model Notification {
   isRead    Boolean          @default(false)
   createdAt DateTime         @default(now())
 
-  user User  @relation(fields: [userId], references: [id])
+  user User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
   word Word? @relation(fields: [wordId], references: [id])
 }
 
 model AdminAuditLog {
   id         String          @id @default(cuid())
-  adminId    String
+  adminId    String?
   action     AuditAction
   targetType AuditTargetType
   targetId   String
   details    Json?
   createdAt  DateTime        @default(now())
 
-  admin User @relation(fields: [adminId], references: [id])
+  admin User? @relation(fields: [adminId], references: [id], onDelete: SetNull)
 }
 
 model WordSession {
   id        String   @id @default(cuid())
-  userId    String
+  userId    String?
   letter    String
   startedAt DateTime @default(now())
   expiresAt DateTime
   used      Boolean  @default(false)
 
-  user User @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
 
 model SiteSettings {
@@ -213,6 +218,15 @@ model LlmUsageLog {
   inputTokens   Int      @default(0)
   outputTokens  Int      @default(0)
   totalTokens   Int      @default(0)
+  estimatedCost Float    @default(0)
+  createdAt     DateTime @default(now())
+}
+
+model EmailLog {
+  id            String   @id @default(cuid())
+  to            String
+  subject       String
+  type          String   // e.g. "magic_link", "notification"
   estimatedCost Float    @default(0)
   createdAt     DateTime @default(now())
 }

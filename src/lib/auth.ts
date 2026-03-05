@@ -33,6 +33,16 @@ export const authOptions: NextAuthOptions = {
         if (error) {
           throw new Error(`Failed to send email: ${error.message}`);
         }
+
+        // Log email for cost tracking (Resend: ~$1 per 1000 emails after free tier)
+        await prisma.emailLog.create({
+          data: {
+            to: email,
+            subject: "התחברות לשקד ואבא",
+            type: "magic_link",
+            estimatedCost: 0.001, // ~$1/1000 emails
+          },
+        }).catch(() => {}); // Don't fail auth if logging fails
       },
     }),
     // Credentials provider for admin login with password

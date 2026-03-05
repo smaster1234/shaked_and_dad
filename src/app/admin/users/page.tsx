@@ -23,6 +23,16 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [deleteEmail, setDeleteEmail] = useState("");
+  const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+  const [deleteSuccess, setDeleteSuccess] = useState("");
+  const [renameUser, setRenameUser] = useState<AdminUser | null>(null);
+  const [renameFirst, setRenameFirst] = useState("");
+  const [renameLast, setRenameLast] = useState("");
+  const [renameLoading, setRenameLoading] = useState(false);
+  const [renameError, setRenameError] = useState("");
 
   useEffect(() => {
     fetchUsers();
@@ -51,6 +61,67 @@ export default function AdminUsersPage() {
     } catch {
       alert("שגיאה");
     }
+  }
+
+  async function handleDelete() {
+    if (deleteConfirm !== deleteEmail) {
+      setDeleteError("הכתובת שהקלדתם לא תואמת");
+      return;
+    }
+    setDeleteLoading(true);
+    setDeleteError("");
+    setDeleteSuccess("");
+    try {
+      const res = await fetch(`/api/admin/users?email=${encodeURIComponent(deleteEmail)}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setDeleteError(data.error || "שגיאה במחיקה");
+      } else {
+        setDeleteSuccess(`המשתמש ${deleteEmail} נמחק בהצלחה`);
+        setDeleteEmail("");
+        setDeleteConfirm("");
+        fetchUsers();
+      }
+    } catch {
+      setDeleteError("שגיאה במחיקה");
+    }
+    setDeleteLoading(false);
+  }
+
+  async function handleRename() {
+    if (!renameUser) return;
+    if (!renameFirst.trim() || !renameLast.trim()) {
+      setRenameError("שם פרטי ושם משפחה חובה");
+      return;
+    }
+    setRenameLoading(true);
+    setRenameError("");
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: renameUser.id,
+          action: "rename",
+          firstName: renameFirst.trim(),
+          lastName: renameLast.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setRenameError(data.error || "שגיאה");
+      } else {
+        setRenameUser(null);
+        setRenameFirst("");
+        setRenameLast("");
+        fetchUsers();
+      }
+    } catch {
+      setRenameError("שגיאה");
+    }
+    setRenameLoading(false);
   }
 
   const filteredUsers = users.filter(
@@ -105,6 +176,90 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
+      {/* Delete user section */}
+      <div className="card mb-6 border border-red-200">
+        <h3 className="font-bold text-red-600 mb-3">מחיקת משתמש</h3>
+        <p className="text-sm text-gray-500 mb-3">
+          מחיקת משתמש היא פעולה בלתי הפיכה. המספר הסידורי לא יוקצה מחדש.
+          המילים שהמשתמש הכניס יישארו עם הקרדיט שלו (שם ואימייל).
+        </p>
+        <div className="flex flex-col gap-2 max-w-md">
+          <input
+            type="email"
+            value={deleteEmail}
+            onChange={(e) => { setDeleteEmail(e.target.value); setDeleteError(""); setDeleteSuccess(""); }}
+            className="input-field"
+            placeholder="אימייל המשתמש למחיקה"
+            dir="ltr"
+          />
+          {deleteEmail && (
+            <input
+              type="email"
+              value={deleteConfirm}
+              onChange={(e) => { setDeleteConfirm(e.target.value); setDeleteError(""); }}
+              className="input-field"
+              placeholder="הקלידו שוב את האימייל לאישור"
+              dir="ltr"
+            />
+          )}
+          {deleteError && <p className="text-sm text-red-600">{deleteError}</p>}
+          {deleteSuccess && <p className="text-sm text-emerald-600">{deleteSuccess}</p>}
+          {deleteEmail && deleteConfirm && (
+            <button
+              onClick={handleDelete}
+              disabled={deleteLoading}
+              className="text-sm px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 w-fit"
+            >
+              {deleteLoading ? "מוחקים..." : "מחק משתמש לצמיתות"}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Rename modal */}
+      {renameUser && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="card max-w-sm w-full mx-4">
+            <h3 className="font-bold mb-3">שינוי שם משתמש</h3>
+            <p className="text-sm text-gray-500 mb-3">
+              {renameUser.email} (#{renameUser.serialNumber})
+            </p>
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              <input
+                type="text"
+                value={renameFirst}
+                onChange={(e) => { setRenameFirst(e.target.value); setRenameError(""); }}
+                className="input-field"
+                placeholder="שם פרטי חדש"
+              />
+              <input
+                type="text"
+                value={renameLast}
+                onChange={(e) => { setRenameLast(e.target.value); setRenameError(""); }}
+                className="input-field"
+                placeholder="שם משפחה חדש"
+              />
+            </div>
+            {renameError && <p className="text-sm text-red-600 mb-2">{renameError}</p>}
+            <div className="flex gap-2">
+              <button
+                onClick={handleRename}
+                disabled={renameLoading}
+                className="text-sm px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              >
+                {renameLoading ? "שומרים..." : "שמור"}
+              </button>
+              <button
+                onClick={() => { setRenameUser(null); setRenameError(""); }}
+                className="text-sm px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+              >
+                ביטול
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="mb-6">
         <input
           type="text"
@@ -157,7 +312,18 @@ export default function AdminUsersPage() {
                   <td className="p-3 text-amber-600">{u.wordStats.pending}</td>
                   <td className="p-3 text-red-500">{u.wordStats.rejected}</td>
                   <td className="p-3">
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 flex-wrap">
+                      <button
+                        onClick={() => {
+                          setRenameUser(u);
+                          setRenameFirst(u.firstName);
+                          setRenameLast(u.lastName);
+                          setRenameError("");
+                        }}
+                        className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                      >
+                        שנה שם
+                      </button>
                       {u.status !== "BANNED" && (
                         <button
                           onClick={() => handleAction(u.id, "ban")}

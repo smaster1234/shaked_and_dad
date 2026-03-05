@@ -61,6 +61,30 @@ export async function GET() {
     take: 20,
   });
 
+  // Email (Resend) costs
+  const emailAllTime = await prisma.emailLog.aggregate({
+    _sum: { estimatedCost: true },
+    _count: true,
+  });
+
+  const emailLast30Days = await prisma.emailLog.aggregate({
+    where: { createdAt: { gte: thirtyDaysAgo } },
+    _sum: { estimatedCost: true },
+    _count: true,
+  });
+
+  const emailToday = await prisma.emailLog.aggregate({
+    where: { createdAt: { gte: today } },
+    _sum: { estimatedCost: true },
+    _count: true,
+  });
+
+  const emailByType = await prisma.emailLog.groupBy({
+    by: ["type"],
+    _sum: { estimatedCost: true },
+    _count: true,
+  });
+
   return NextResponse.json({
     allTime: {
       totalCalls: allTimeLogs._count,
@@ -82,5 +106,11 @@ export async function GET() {
     byOperation,
     byModel,
     recentLogs,
+    email: {
+      allTime: { totalEmails: emailAllTime._count, estimatedCost: emailAllTime._sum.estimatedCost || 0 },
+      last30Days: { totalEmails: emailLast30Days._count, estimatedCost: emailLast30Days._sum.estimatedCost || 0 },
+      today: { totalEmails: emailToday._count, estimatedCost: emailToday._sum.estimatedCost || 0 },
+      byType: emailByType,
+    },
   });
 }

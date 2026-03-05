@@ -54,7 +54,7 @@ export async function PATCH(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "אין הרשאה" }, { status: 403 });
 
   const body = await req.json();
-  const { userId, action } = body;
+  const { userId, action, firstName, lastName } = body;
 
   if (!userId || !action) {
     return NextResponse.json({ error: "חסרים פרטים" }, { status: 400 });
@@ -94,6 +94,17 @@ export async function PATCH(req: NextRequest) {
       updateData = { role: UserRole.USER };
       auditAction = "CHANGE_USER_ROLE";
       break;
+    case "rename":
+      if (!firstName?.trim() || !lastName?.trim()) {
+        return NextResponse.json({ error: "שם פרטי ושם משפחה חובה" }, { status: 400 });
+      }
+      updateData = {
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        fullName: `${firstName.trim()} ${lastName.trim()}`,
+      };
+      auditAction = "RENAME_USER";
+      break;
     default:
       return NextResponse.json({ error: "פעולה לא מוכרת" }, { status: 400 });
   }
@@ -107,11 +118,55 @@ export async function PATCH(req: NextRequest) {
   await prisma.adminAuditLog.create({
     data: {
       adminId: session.user.id,
-      action: auditAction as "BAN_USER" | "UNSUSPEND_USER" | "SUSPEND_USER" | "CHANGE_USER_ROLE",
+      action: auditAction as "BAN_USER" | "UNSUSPEND_USER" | "SUSPEND_USER" | "CHANGE_USER_ROLE" | "RENAME_USER",
       targetType: "USER",
       targetId: userId,
-      details: { action },
+      details: { action, ...(action === "rename" ? { firstName, lastName } : {}) },
     },
+  });
+
+  return NextResponse.json({ success: true });
+}
+
+export async function DELETE(req: NextRequest) {
+  const session = await checkAdmin();
+  if (!session) return NextResponse.json({ error: "אין הרשאה" }, { status: 403 });
+
+  const { searchParams } = new URL(req.url);
+  const email = searchParams.get("email");
+
+  if (!email) {
+    return NextResponse.json({ error: "צריך לספק אימייל" }, { status: 400 });
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true, fullName: true, email: true, role: true },
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: "משתמש לא נמצא" }, { status: 404 });
+  }
+
+  if (user.role === "ADMIN") {
+    return NextResponse.json({ error: "לא ניתן למחוק מנהל" }, { status: 403 });
+  }
+
+  // Audit log before deletion
+  await prisma.adminAuditLog.create({
+    data: {
+      adminId: session.user.id,
+      action: "DELETE_USER",
+      targetType: "USER",
+      targetId: user.id,
+      details: { email: user.email, fullName: user.fullName },
+    },
+  });
+
+  // Delete the user - words keep their submitterName/submitterEmail,
+  // and submittedById is set to null via onDelete: SetNull
+  await prisma.user.delete({
+    where: { id: user.id },
   });
 
   return NextResponse.json({ success: true });
