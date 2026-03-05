@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# שקדול - המילון שאנחנו בונים יחד!
 
-## Getting Started
+פלטפורמה קהילתית לפיתוח שפה חדשה בשם **שקדול**. משתמשים ממציאים מילים חדשות, נותנים להן משמעות, והן נכנסות למילון לאחר אישור ועדת השפה.
 
-First, run the development server:
+## התקנה מקומית
 
 ```bash
+# התקנת dependencies
+npm install
+
+# העתקת משתני סביבה
+cp .env.example .env
+# ערכו את .env עם הפרטים שלכם
+
+# יצירת בסיס נתונים
+npx prisma migrate dev --name init
+
+# הזנת נתונים ראשוניים (אדמין + הגדרות)
+npm run db:seed
+
+# הרצה
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## משתני סביבה נדרשים
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| משתנה | תיאור |
+|-------|-------|
+| `DATABASE_URL` | חיבור PostgreSQL |
+| `NEXTAUTH_URL` | כתובת האתר |
+| `NEXTAUTH_SECRET` | מפתח סודי ל-NextAuth |
+| `EMAIL_SERVER_HOST` | שרת SMTP |
+| `EMAIL_SERVER_PORT` | פורט SMTP |
+| `EMAIL_SERVER_USER` | משתמש SMTP |
+| `EMAIL_SERVER_PASSWORD` | סיסמת SMTP |
+| `EMAIL_FROM` | כתובת שולח |
+| `GEMINI_API_KEY` | מפתח API של Gemini |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Deploy ל-Railway
 
-## Learn More
+1. צרו פרויקט חדש ב-Railway
+2. הוסיפו שירות PostgreSQL
+3. חברו את ה-GitHub repo
+4. הגדירו את כל משתני הסביבה
+5. Railway ישתמש ב-`railway.json` אוטומטית:
+   - Build: `npx prisma generate && npm run build`
+   - Start: `npx prisma migrate deploy && npm start`
+6. הריצו seed: `npm run db:seed` (דרך Railway CLI)
 
-To learn more about Next.js, take a look at the following resources:
+## מבנה הפרויקט
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+src/
+├── app/               # דפים ו-API routes
+│   ├── admin/         # פאנל ניהול
+│   ├── auth/          # הרשמה וכניסה
+│   ├── create/        # המצאת מילה
+│   ├── dictionary/    # המילון
+│   ├── profile/       # פרופיל אישי
+│   ├── terms/         # תקנון
+│   ├── about/         # אודות
+│   └── api/           # API endpoints
+├── components/        # קומפוננטות React
+├── lib/               # לוגיקה עסקית
+└── types/             # TypeScript types
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## טכנולוגיות
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Next.js 14** - App Router, SSR
+- **Tailwind CSS** - עיצוב RTL
+- **Prisma** - ORM + PostgreSQL
+- **NextAuth.js** - אימות עם magic link
+- **Gemini 2.0 Flash** - ניטור תוכן ובדיקת ביטוי
+- **Railway** - hosting
