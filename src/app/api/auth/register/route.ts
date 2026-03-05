@@ -17,25 +17,37 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "גיל לא תקין" }, { status: 400 });
   }
 
+  const normalizedEmail = email.trim().toLowerCase();
+
   // Check if email already exists
   const existing = await prisma.user.findUnique({
-    where: { email: email.trim() },
+    where: { email: normalizedEmail },
   });
 
   if (existing) {
     return NextResponse.json({ error: "כתובת האימייל הזו כבר רשומה. נסו להיכנס." }, { status: 409 });
   }
 
-  const user = await prisma.user.create({
-    data: {
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      fullName: `${firstName.trim()} ${lastName.trim()}`,
-      email: email.trim(),
-      age,
-      termsAcceptedAt: new Date(),
-    },
-  });
+  try {
+    const user = await prisma.user.create({
+      data: {
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        fullName: `${firstName.trim()} ${lastName.trim()}`,
+        email: normalizedEmail,
+        age,
+        termsAcceptedAt: new Date(),
+      },
+    });
 
-  return NextResponse.json({ success: true, userId: user.id, serialNumber: user.serialNumber });
+    return NextResponse.json({ success: true, userId: user.id, serialNumber: user.serialNumber });
+  } catch (err: unknown) {
+    if (
+      typeof err === "object" && err !== null && "code" in err &&
+      (err as { code: string }).code === "P2002"
+    ) {
+      return NextResponse.json({ error: "כתובת האימייל הזו כבר רשומה. נסו להיכנס." }, { status: 409 });
+    }
+    throw err;
+  }
 }
