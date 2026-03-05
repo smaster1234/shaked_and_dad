@@ -62,6 +62,8 @@ export default function SignInPage() {
         setError("אימייל או סיסמה שגויים");
       } else if (res?.ok) {
         window.location.href = "/create";
+      } else {
+        setError("שגיאה בהתחברות. נסו שוב.");
       }
     } catch {
       setError("שגיאה. נסו שוב.");
