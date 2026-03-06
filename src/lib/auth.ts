@@ -7,7 +7,9 @@ import { Resend } from "resend";
 import { prisma } from "./prisma";
 import type { Adapter } from "next-auth/adapters";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as Adapter,
@@ -15,7 +17,7 @@ export const authOptions: NextAuthOptions = {
     EmailProvider({
       from: process.env.EMAIL_FROM || "shaked@shakedol.org",
       sendVerificationRequest: async ({ identifier: email, url, provider }) => {
-        const { error } = await resend.emails.send({
+        const { error } = await getResend().emails.send({
           from: provider.from,
           to: email,
           subject: "התחברות לשקד ואבא",

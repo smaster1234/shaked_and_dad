@@ -2,11 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
+  const resend = new Resend(process.env.RESEND_API_KEY);
   // Verify cron secret to prevent unauthorized triggers
   const authHeader = req.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -17,7 +16,7 @@ export async function POST(req: NextRequest) {
 
   // Get all active users with their contribution stats
   const users = await prisma.user.findMany({
-    where: { status: "ACTIVE", email: { not: null } },
+    where: { status: "ACTIVE" },
     select: {
       id: true,
       email: true,
