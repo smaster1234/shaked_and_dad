@@ -22,6 +22,8 @@ export default function CreatePage() {
   const [successMessage, setSuccessMessage] = useState("");
   const [wordExists, setWordExists] = useState(false);
   const [checkingWord, setCheckingWord] = useState(false);
+  const [suggestion, setSuggestion] = useState("");
+  const [showSuggestion, setShowSuggestion] = useState(false);
 
   // Redirect if not logged in
   useEffect(() => {
@@ -80,11 +82,12 @@ export default function CreatePage() {
     setGameState("expired");
   }, []);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent, skipSuggestion = false) {
     e.preventDefault();
     if (gameState !== "playing") return;
 
     setError("");
+    setShowSuggestion(false);
     setGameState("submitting");
 
     try {
@@ -95,10 +98,19 @@ export default function CreatePage() {
           word: word.trim(),
           meaning: meaning.trim(),
           sessionId,
+          skipSuggestion,
         }),
       });
 
       const data = await res.json();
+
+      // Handle definition suggestion (returned as 200 with type)
+      if (data.type === "definition_suggestion" && data.suggestion) {
+        setSuggestion(data.suggestion);
+        setShowSuggestion(true);
+        setGameState("playing");
+        return;
+      }
 
       if (!res.ok) {
         setError(data.error);
@@ -112,6 +124,19 @@ export default function CreatePage() {
       setError("שגיאה בשליחת המילה. נסו שוב.");
       setGameState("playing");
     }
+  }
+
+  function acceptSuggestion() {
+    setMeaning(suggestion);
+    setSuggestion("");
+    setShowSuggestion(false);
+  }
+
+  function rejectSuggestion() {
+    setShowSuggestion(false);
+    // Resubmit with skipSuggestion=true
+    const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
+    handleSubmit(fakeEvent, true);
   }
 
   if (status === "loading") {
@@ -194,6 +219,29 @@ export default function CreatePage() {
 
             {error && (
               <div role="alert" className="bg-red-50 text-red-600 p-3 rounded-xl text-sm">{error}</div>
+            )}
+
+            {showSuggestion && (
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <p className="text-sm font-bold text-blue-700 mb-2">יש לנו הצעה לשיפור ההגדרה:</p>
+                <p className="text-blue-800 bg-white rounded-lg p-3 mb-3 text-sm leading-relaxed">{suggestion}</p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={acceptSuggestion}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm hover:bg-blue-600"
+                  >
+                    קבלו את ההצעה
+                  </button>
+                  <button
+                    type="button"
+                    onClick={rejectSuggestion}
+                    className="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200"
+                  >
+                    נשאר עם ההגדרה שלי
+                  </button>
+                </div>
+              </div>
             )}
 
             <button

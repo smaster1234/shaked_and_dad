@@ -141,3 +141,171 @@ export async function checkPronounceability(
     return { pronounceable: true, suggestion: "" };
   }
 }
+
+// --- Word Similarity Detection ---
+export interface SimilarityResult {
+  hasSimilar: boolean;
+  similarWords: { word: string; reason: string }[];
+}
+
+export async function checkSimilarity(
+  word: string,
+  meaning: string,
+  existingWords: { word: string; meaning: string }[]
+): Promise<SimilarityResult> {
+  if (existingWords.length === 0) {
+    return { hasSimilar: false, similarWords: [] };
+  }
+
+  try {
+    const modelName = await getModelName();
+    const model = genAI.getGenerativeModel({ model: modelName });
+
+    const wordList = existingWords.map((w) => `${w.word}: ${w.meaning}`).join("\n");
+
+    const prompt = `אתה בודק דמיון בין מילים במילון שפה המצאתית.
+בדוק אם המילה החדשה דומה למילים קיימות - בצליל, במשמעות, או בכתיב.
+
+המילה החדשה: "${word}"
+המשמעות: "${meaning}"
+
+מילים קיימות במילון:
+${wordList}
+
+בדוק:
+1. דמיון בצליל (מילים שנשמעות דומה)
+2. דמיון במשמעות (מילים עם הגדרה דומה)
+3. דמיון בכתיב (מילים שנכתבות בצורה דומה)
+
+החזר תשובה בפורמט JSON בלבד, בלי markdown:
+{"hasSimilar": false, "similarWords": []}
+או
+{"hasSimilar": true, "similarWords": [{"word": "המילה הדומה", "reason": "הסבר קצר"}]}`;
+
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text().trim();
+
+    const usage = response.usageMetadata;
+    if (usage) {
+      await logUsage(modelName, "similarity_check", usage.promptTokenCount || 0, usage.candidatesTokenCount || 0);
+    }
+
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]) as SimilarityResult;
+    }
+
+    return { hasSimilar: false, similarWords: [] };
+  } catch (error) {
+    console.error("Gemini similarity check error:", error);
+    return { hasSimilar: false, similarWords: [] };
+  }
+}
+
+// --- Sentence Validation ---
+export interface SentenceValidationResult {
+  valid: boolean;
+  reason: string;
+}
+
+export async function validateSentenceContent(
+  sentence: string,
+  meaning: string,
+  wordsUsed: string[]
+): Promise<SentenceValidationResult> {
+  try {
+    const modelName = await getModelName();
+    const model = genAI.getGenerativeModel({ model: modelName });
+
+    const prompt = `אתה בודק משפטים בשפה המצאתית בשם "שקדולית".
+המשפט משלב מילים שהומצאו עם מילים רגילות בעברית.
+
+המשפט: "${sentence}"
+התרגום לעברית: "${meaning}"
+מילים מהמילון ששימשו: ${wordsUsed.join(", ")}
+
+בדוק:
+1. האם המשפט הגיוני מבחינת מבנה (סדר מילים, תחביר בסיסי)?
+2. האם התרגום תואם למשפט?
+3. האם המשפט לא מכיל תוכן פוגעני?
+
+החזר תשובה בפורמט JSON בלבד, בלי markdown:
+{"valid": true, "reason": ""}
+או
+{"valid": false, "reason": "הסבר קצר בעברית"}`;
+
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text().trim();
+
+    const usage = response.usageMetadata;
+    if (usage) {
+      await logUsage(modelName, "sentence_validation", usage.promptTokenCount || 0, usage.candidatesTokenCount || 0);
+    }
+
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]) as SentenceValidationResult;
+    }
+
+    return { valid: true, reason: "" };
+  } catch (error) {
+    console.error("Gemini sentence validation error:", error);
+    return { valid: true, reason: "" };
+  }
+}
+
+// --- Alternative Definition Suggestion ---
+export interface DefinitionSuggestionResult {
+  needsImprovement: boolean;
+  suggestion: string;
+  originalOk: boolean;
+}
+
+export async function suggestDefinition(
+  word: string,
+  meaning: string
+): Promise<DefinitionSuggestionResult> {
+  try {
+    const modelName = await getModelName();
+    const model = genAI.getGenerativeModel({ model: modelName });
+
+    const prompt = `אתה עוזר לשפר הגדרות של מילים המצאתיות בשפה חדשה.
+
+המילה: "${word}"
+ההגדרה שנתן המשתמש: "${meaning}"
+
+בדוק את ההגדרה:
+1. האם היא ברורה ומובנת?
+2. האם היא מסבירה מספיק מה המילה אומרת?
+3. האם אפשר לשפר אותה כדי שתהיה יותר ברורה?
+
+אם ההגדרה טובה כמו שהיא - אמור שהיא בסדר.
+אם היא לא ברורה מספיק - הצע הגדרה חלופית טובה יותר.
+
+החזר תשובה בפורמט JSON בלבד, בלי markdown:
+{"needsImprovement": false, "suggestion": "", "originalOk": true}
+או
+{"needsImprovement": true, "suggestion": "הגדרה חלופית ברורה יותר", "originalOk": false}`;
+
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = response.text().trim();
+
+    const usage = response.usageMetadata;
+    if (usage) {
+      await logUsage(modelName, "definition_suggestion", usage.promptTokenCount || 0, usage.candidatesTokenCount || 0);
+    }
+
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      return JSON.parse(jsonMatch[0]) as DefinitionSuggestionResult;
+    }
+
+    return { needsImprovement: false, suggestion: "", originalOk: true };
+  } catch (error) {
+    console.error("Gemini definition suggestion error:", error);
+    return { needsImprovement: false, suggestion: "", originalOk: true };
+  }
+}

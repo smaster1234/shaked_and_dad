@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { validateWord, validateMeaning } from "@/lib/hebrew-validation";
 
 export const dynamic = "force-dynamic";
-import { checkContentSafety, checkPronounceability } from "@/lib/gemini";
+import { checkContentSafety, checkPronounceability, suggestDefinition } from "@/lib/gemini";
 import { handleViolation, checkUserCanSubmit } from "@/lib/moderation";
 
 export async function POST(req: NextRequest) {
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { word, meaning, sessionId } = body;
+  const { word, meaning, sessionId, skipSuggestion } = body;
 
   // Validate WordSession
   if (!sessionId) {
@@ -89,6 +89,18 @@ export async function POST(req: NextRequest) {
       type: "moderation",
       action: result.action,
     }, { status: 403 });
+  }
+
+  // Check definition clarity and suggest improvement (unless user already saw suggestion)
+  if (!skipSuggestion) {
+    const defSuggestion = await suggestDefinition(word.trim(), meaning.trim());
+    if (defSuggestion.needsImprovement && defSuggestion.suggestion) {
+      return NextResponse.json({
+        type: "definition_suggestion",
+        suggestion: defSuggestion.suggestion,
+        message: "להגדרה שלכם יש הצעה לשיפור. אפשר לקבל את ההצעה או להישאר עם ההגדרה המקורית.",
+      }, { status: 200 });
+    }
   }
 
   // Calculate submission time

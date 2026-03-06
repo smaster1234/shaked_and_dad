@@ -20,6 +20,9 @@ interface CostData {
 const operationLabels: Record<string, string> = {
   content_safety: "סינון תוכן",
   pronounceability: "בדיקת הגייה",
+  similarity_check: "בדיקת דמיון מילים",
+  sentence_validation: "בדיקת משפטים",
+  definition_suggestion: "הצעת הגדרה חלופית",
 };
 
 const emailTypeLabels: Record<string, string> = {

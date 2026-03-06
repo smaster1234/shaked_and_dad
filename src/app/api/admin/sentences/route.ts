@@ -43,6 +43,15 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: "חסרים פרטים" }, { status: 400 });
   }
 
+  // Toggle featured status
+  if (action === "toggleFeatured") {
+    await prisma.sentence.update({
+      where: { id: sentenceId },
+      data: { isFeatured: body.isFeatured ?? false },
+    });
+    return NextResponse.json({ success: true });
+  }
+
   const newStatus = action === "approve" ? "APPROVED" : "REJECTED";
 
   const sentence = await prisma.sentence.update({

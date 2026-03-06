@@ -8,6 +8,7 @@ interface AdminSentence {
   meaning: string;
   wordsUsed: string[];
   status: string;
+  isFeatured: boolean;
   submittedBy: { id: string; fullName: string; serialNumber: number; email: string } | null;
   createdAt: string;
 }
@@ -43,6 +44,19 @@ export default function AdminSentencesPage() {
       fetchSentences();
     } catch {
       alert("שגיאה בביצוע הפעולה");
+    }
+  }
+
+  async function handleToggleFeatured(sentenceId: number, currentValue: boolean) {
+    try {
+      await fetch("/api/admin/sentences", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sentenceId, action: "toggleFeatured", isFeatured: !currentValue }),
+      });
+      fetchSentences();
+    } catch {
+      alert("שגיאה בעדכון");
     }
   }
 
@@ -95,7 +109,14 @@ export default function AdminSentencesPage() {
             <div key={s.id} className="card">
               <div className="flex justify-between items-start gap-4">
                 <div className="flex-1">
-                  <h3 className="text-lg font-bold">&quot;{s.text}&quot;</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-bold">&quot;{s.text}&quot;</h3>
+                    {s.isFeatured && (
+                      <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">
+                        בחירת הועדה
+                      </span>
+                    )}
+                  </div>
                   <p className="text-gray-600 mt-1">{s.meaning}</p>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {s.wordsUsed.map((word) => (
@@ -113,32 +134,46 @@ export default function AdminSentencesPage() {
                   </div>
                 </div>
 
-                {filter === "PENDING" && (
-                  <div className="flex gap-2 flex-shrink-0">
+                <div className="flex flex-col gap-2 flex-shrink-0 items-end">
+                  {filter === "PENDING" && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleAction(s.id, "approve")}
+                        className="px-3 py-1 bg-emerald-500 text-white rounded-lg text-sm hover:bg-emerald-600"
+                      >
+                        אישור
+                      </button>
+                      <button
+                        onClick={() => {
+                          const note = prompt("סיבת הדחייה:");
+                          if (note !== null) handleAction(s.id, "reject", note);
+                        }}
+                        className="px-3 py-1 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600"
+                      >
+                        דחייה
+                      </button>
+                    </div>
+                  )}
+                  {filter === "APPROVED" && (
                     <button
-                      onClick={() => handleAction(s.id, "approve")}
-                      className="px-3 py-1 bg-emerald-500 text-white rounded-lg text-sm hover:bg-emerald-600"
+                      onClick={() => handleToggleFeatured(s.id, s.isFeatured)}
+                      className={`px-3 py-1 rounded-lg text-sm ${
+                        s.isFeatured
+                          ? "bg-amber-500 text-white hover:bg-amber-600"
+                          : "bg-gray-100 text-gray-600 hover:bg-amber-100"
+                      }`}
                     >
-                      אישור
+                      {s.isFeatured ? "הסר מבחירת הועדה" : "בחירת הועדה"}
                     </button>
-                    <button
-                      onClick={() => {
-                        const note = prompt("סיבת הדחייה:");
-                        if (note !== null) handleAction(s.id, "reject", note);
-                      }}
-                      className="px-3 py-1 bg-red-500 text-white rounded-lg text-sm hover:bg-red-600"
-                    >
-                      דחייה
-                    </button>
-                  </div>
-                )}
-                <button
-                  onClick={() => handleDelete(s.id)}
-                  className="text-gray-300 hover:text-red-500 text-sm"
-                  title="מחק"
-                >
-                  🗑
-                </button>
+                  )}
+                  <button
+                    onClick={() => handleDelete(s.id)}
+                    className="text-gray-300 hover:text-red-500 text-sm"
+                    title="מחק"
+                  >
+                    🗑
+                  </button>
+                </div>
               </div>
             </div>
           ))}

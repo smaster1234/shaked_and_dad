@@ -68,6 +68,15 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ success: true });
   }
 
+  // Toggle featured status
+  if (action === "toggleFeatured") {
+    await prisma.word.update({
+      where: { id: wordId },
+      data: { isFeatured: body.isFeatured ?? false },
+    });
+    return NextResponse.json({ success: true });
+  }
+
   const newStatus = action === "approve" ? "APPROVED" : "REJECTED";
 
   const word = await prisma.word.update({

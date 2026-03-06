@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { validateSentenceContent } from "@/lib/gemini";
 
 export const dynamic = "force-dynamic";
 
@@ -85,6 +86,15 @@ export async function POST(req: NextRequest) {
   if (validWords.length === 0) {
     return NextResponse.json(
       { error: "אף מילה מהמילון לא נמצאה במשפט" },
+      { status: 400 }
+    );
+  }
+
+  // Validate sentence content with Gemini
+  const validation = await validateSentenceContent(text.trim(), meaning.trim(), validWords);
+  if (!validation.valid) {
+    return NextResponse.json(
+      { error: validation.reason || "המשפט לא עבר בדיקה" },
       { status: 400 }
     );
   }
