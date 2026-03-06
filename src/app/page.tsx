@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import Logo from "@/components/Logo";
+import CrazyWordsCarousel from "@/components/CrazyWordsCarousel";
+import LiveStats from "@/components/LiveStats";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 export const revalidate = 0;
 
 async function getStats() {
@@ -128,105 +131,11 @@ export default async function HomePage() {
 
       {/* Crazy Words Showcase - The Fun Zone */}
       {crazyWords.length > 0 && (
-        <section className="py-20 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-pink-50/40 to-transparent" />
-          <div className="absolute top-10 left-[5%] text-8xl opacity-10 animate-float select-none">🤪</div>
-          <div className="absolute bottom-10 right-[5%] text-8xl opacity-10 animate-float-delay select-none">🔥</div>
-          <div className="absolute top-20 right-[15%] text-6xl opacity-10 animate-float select-none">💥</div>
-          <div className="page-container relative z-10">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl md:text-5xl font-black mb-4">
-                <span className="gradient-text-fun">השיגעון</span> כבר התחיל
-              </h2>
-              <p className="text-xl text-gray-500 max-w-2xl mx-auto leading-relaxed">
-                אין חוקים. אין גבולות. רק הדמיון שלכם.
-                <br />
-                <span className="font-bold text-gray-700">תראו מה המציאו פה:</span>
-              </p>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
-              {crazyWords.map((w, i) => {
-                const colors = [
-                  "from-orange-400 via-red-500 to-pink-500",
-                  "from-purple-400 via-pink-500 to-rose-500",
-                  "from-emerald-400 via-teal-500 to-cyan-500",
-                  "from-blue-400 via-indigo-500 to-purple-500",
-                  "from-amber-400 via-orange-500 to-red-500",
-                  "from-pink-400 via-rose-500 to-red-500",
-                ];
-                const rotations = ["rotate-1", "-rotate-1", "rotate-2", "-rotate-2", "rotate-1", "-rotate-1"];
-                return (
-                  <div
-                    key={w.id}
-                    className={`card-hover group relative overflow-hidden ${rotations[i % rotations.length]} hover:rotate-0 transition-all duration-500`}
-                  >
-                    <div className={`absolute top-0 left-0 w-full h-1.5 bg-gradient-to-l ${colors[i % colors.length]}`} />
-                    <div className="flex items-start gap-4">
-                      <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${colors[i % colors.length]} flex items-center justify-center shadow-lg group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 flex-shrink-0`}>
-                        <span className="text-white font-black text-3xl">{w.startingLetter}</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-3xl font-black text-gray-800 mb-1">{w.word}</h3>
-                        <p className="text-gray-500 leading-relaxed text-lg">{w.meaning}</p>
-                        <p className="text-xs text-gray-300 mt-2">המציא/ה: {w.submittedBy?.fullName || "אנונימי/ת"}</p>
-                      </div>
-                    </div>
-                    {w.isFeatured && (
-                      <div className="absolute top-3 left-3 bg-gradient-to-l from-amber-400 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
-                        בחירת הועדה
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-            <div className="text-center mt-10">
-              <Link href="/create" className="btn-primary text-xl py-5 px-12 rounded-3xl animate-glow-pulse">
-                גם אני רוצה להשתגע!
-              </Link>
-            </div>
-          </div>
-        </section>
+        <CrazyWordsCarousel initialWords={crazyWords} />
       )}
 
-      {/* Stats */}
-      <section className="py-16 relative z-10">
-        <div className="page-container">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
-            <Link href="/dictionary" className="group">
-              <div className="card-colorful border-orange-200/60 hover:border-orange-400 hover:shadow-xl hover:shadow-orange-100/50 hover:-translate-y-2 text-center p-8">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-orange-200/50 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
-                  <span className="text-3xl">📖</span>
-                </div>
-                <div className="text-6xl font-black gradient-text mb-2">{stats.wordCount}</div>
-                <div className="text-gray-400 text-lg font-medium">מילים במילון</div>
-                <div className="mt-3 text-sm text-orange-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                  לחצו לצפייה במילון &larr;
-                </div>
-              </div>
-            </Link>
-            <Link href="/sentences" className="group">
-              <div className="card-colorful border-purple-200/60 hover:border-purple-400 hover:shadow-xl hover:shadow-purple-100/50 hover:-translate-y-2 text-center p-8 transition-all duration-300">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-200/50 group-hover:scale-110 group-hover:rotate-[-3deg] transition-all duration-300">
-                  <span className="text-3xl">💬</span>
-                </div>
-                <div className="text-6xl font-black text-purple-500 mb-2">{stats.sentenceCount}</div>
-                <div className="text-gray-400 text-lg font-medium">משפטים בשקדולית</div>
-                <div className="mt-3 text-sm text-purple-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                  לחצו לצפייה במשפטים &larr;
-                </div>
-              </div>
-            </Link>
-            <div className="card-colorful border-emerald-200/60 hover:border-emerald-400 hover:shadow-xl hover:shadow-emerald-100/50 hover:-translate-y-2 text-center p-8 transition-all duration-300 group">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-200/50 group-hover:scale-110 group-hover:rotate-[-3deg] transition-all duration-300">
-                <span className="text-3xl">👥</span>
-              </div>
-              <div className="text-6xl font-black text-emerald-500 mb-2">{stats.userCount}</div>
-              <div className="text-gray-400 text-lg font-medium">ממציאות וממציאים</div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Stats - client component for live updates */}
+      <LiveStats initial={{ wordCount: stats.wordCount, sentenceCount: stats.sentenceCount, userCount: stats.userCount }} />
 
       {/* How it works */}
       <section className="py-20">
