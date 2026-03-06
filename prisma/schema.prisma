@@ -155,6 +155,7 @@ model Word {
   // Permanent credit fields - never change even if user is deleted
   submitterName  String     @default("")
   submitterEmail String     @default("")
+  isFeatured     Boolean    @default(false)   // Committee pick - most creative/crazy
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt
 
@@ -256,6 +257,7 @@ model Sentence {
   reviewedById  String?
   reviewNote    String?
   likes         Int            @default(0)
+  isFeatured    Boolean        @default(false)   // Committee pick - most creative
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
