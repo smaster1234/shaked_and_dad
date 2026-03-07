@@ -12,7 +12,7 @@ export default function RegisterPage() {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [step, setStep] = useState<"form" | "sending" | "done">("form");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -41,7 +41,7 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      // First register the user
+      // Step 1: Create the user
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -57,36 +57,78 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "שגיאה בהרשמה");
+        if (res.status === 409) {
+          setError("כתובת האימייל הזו כבר רשומה. אפשר להיכנס עם קישור באימייל.");
+        } else {
+          setError(data.error || "שגיאה בהרשמה");
+        }
         return;
       }
 
-      // Then sign in with email
-      await signIn("email", {
+      // Step 2: Send magic link
+      setStep("sending");
+
+      const signInRes = await signIn("email", {
         email: email.trim(),
         callbackUrl: "/create",
         redirect: false,
       });
 
-      setSuccess(true);
+      if (signInRes?.error) {
+        setError("ההרשמה הצליחה אבל יש בעיה בשליחת הקישור. נסו להיכנס מדף הכניסה.");
+        setStep("form");
+        return;
+      }
+
+      setStep("done");
     } catch {
       setError("שגיאה בהרשמה. נסו שוב.");
+      setStep("form");
     } finally {
       setLoading(false);
     }
   }
 
-  if (success) {
+  // Success screen
+  if (step === "done") {
     return (
       <div className="page-container max-w-md mx-auto mt-12 text-center">
         <div className="card">
-          <div className="text-5xl mb-4">📧</div>
-          <h2 className="text-2xl font-bold mb-4">בדקו את האימייל!</h2>
-          <p className="text-gray-600">
-            שלחנו לכם קישור לכתובת <strong>{email}</strong>.
-            <br />
-            לחצו על הקישור כדי להיכנס.
+          <div className="text-6xl mb-4">🎉</div>
+          <h2 className="text-2xl font-bold mb-2">נרשמתם בהצלחה!</h2>
+          <p className="text-gray-600 mb-4">
+            שלחנו קישור כניסה לכתובת <strong dir="ltr">{email}</strong>
           </p>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-right mb-4">
+            <p className="text-sm font-bold text-blue-700 mb-2">מה עכשיו?</p>
+            <ol className="text-sm text-blue-600 list-decimal list-inside space-y-1">
+              <li>פתחו את האימייל שלכם</li>
+              <li>חפשו מייל מ-&quot;שקדול&quot;</li>
+              <li>לחצו על הכפתור &quot;התחבר עכשיו&quot;</li>
+              <li>תגיעו ישר לדף ההמצאה!</li>
+            </ol>
+          </div>
+
+          <p className="text-gray-400 text-xs">
+            לא קיבלתם? בדקו בתיקיית הספאם, או{" "}
+            <Link href="/auth/signin" className="text-amber-600 underline">
+              נסו להיכנס שוב
+            </Link>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Sending screen
+  if (step === "sending") {
+    return (
+      <div className="page-container max-w-md mx-auto mt-12 text-center">
+        <div className="card">
+          <div className="text-5xl mb-4 animate-bounce-gentle">📧</div>
+          <h2 className="text-2xl font-bold mb-2">שולחים קישור...</h2>
+          <p className="text-gray-500">רגע אחד, שולחים לכם אימייל עם קישור כניסה</p>
         </div>
       </div>
     );
@@ -97,6 +139,25 @@ export default function RegisterPage() {
       <div className="card">
         <h1 className="text-3xl font-bold text-center mb-2">הרשמה לשקדול</h1>
         <p className="text-center text-gray-500 mb-4">בחינם לגמרי!</p>
+
+        {/* Steps indicator */}
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <div className="flex items-center gap-1">
+            <div className="w-7 h-7 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-bold">1</div>
+            <span className="text-xs text-amber-600 font-medium">מלאו פרטים</span>
+          </div>
+          <div className="w-8 h-0.5 bg-gray-200" />
+          <div className="flex items-center gap-1">
+            <div className="w-7 h-7 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center text-xs font-bold">2</div>
+            <span className="text-xs text-gray-400">אישור באימייל</span>
+          </div>
+          <div className="w-8 h-0.5 bg-gray-200" />
+          <div className="flex items-center gap-1">
+            <div className="w-7 h-7 rounded-full bg-gray-200 text-gray-400 flex items-center justify-center text-xs font-bold">3</div>
+            <span className="text-xs text-gray-400">המציאו!</span>
+          </div>
+        </div>
+
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 text-sm text-amber-800">
           <strong>שימו לב:</strong> השם שלכם יופיע כקרדיט קבוע על כל מילה שתכניסו לשפה. ודאו שאתם רושמים את שמכם האמיתי - זה לא ישתנה.
         </div>
@@ -147,6 +208,7 @@ export default function RegisterPage() {
               dir="ltr"
               required
             />
+            <p className="text-xs text-gray-400 mt-1">לכתובת הזו נשלח קישור כניסה</p>
           </div>
 
           <div>
@@ -182,6 +244,11 @@ export default function RegisterPage() {
           {error && (
             <div role="alert" className="bg-red-50 text-red-600 p-3 rounded-xl text-sm">
               {error}
+              {error.includes("להיכנס") && (
+                <Link href="/auth/signin" className="block mt-2 text-amber-600 underline font-medium">
+                  לחצו כאן לכניסה
+                </Link>
+              )}
             </div>
           )}
 

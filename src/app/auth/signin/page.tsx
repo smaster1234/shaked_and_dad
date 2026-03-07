@@ -23,6 +23,20 @@ export default function SignInPage() {
 
     setLoading(true);
     try {
+      // First check if user exists
+      const checkRes = await fetch("/api/auth/check-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      const checkData = await checkRes.json();
+
+      if (!checkData.exists) {
+        setError("לא מצאנו חשבון עם האימייל הזה. צריכים להירשם קודם!");
+        setLoading(false);
+        return;
+      }
+
       const res = await signIn("email", {
         email: email.trim(),
         callbackUrl: "/create",
@@ -59,8 +73,6 @@ export default function SignInPage() {
         redirect: false,
       });
 
-      console.log("signIn response:", JSON.stringify(res));
-
       if (res?.error) {
         if (res.error === "CredentialsSignin") {
           setError("אימייל או סיסמה שגויים");
@@ -70,10 +82,9 @@ export default function SignInPage() {
       } else if (res?.ok) {
         window.location.href = res.url || "/create";
       } else {
-        setError("שגיאה בהתחברות - לא התקבלה תשובה מהשרת.");
+        setError("שגיאה בהתחברות.");
       }
-    } catch (err) {
-      console.error("signIn error:", err);
+    } catch {
       setError("שגיאה בחיבור לשרת. נסו שוב.");
     } finally {
       setLoading(false);
@@ -86,10 +97,17 @@ export default function SignInPage() {
         <div className="card">
           <div className="text-5xl mb-4">📧</div>
           <h2 className="text-2xl font-bold mb-4">בדקו את האימייל!</h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 mb-2">
             שלחנו לכם קישור לכתובת <strong>{email}</strong>.
-            <br />
-            לחצו על הקישור כדי להיכנס.
+          </p>
+          <p className="text-gray-500 text-sm">
+            לחצו על הקישור כדי להיכנס. הקישור תקף ל-24 שעות.
+          </p>
+          <p className="text-gray-400 text-xs mt-4">
+            לא קיבלתם? בדקו בתיקיית הספאם, או{" "}
+            <button onClick={() => setSuccess(false)} className="text-amber-600 underline">
+              נסו שוב
+            </button>
           </p>
         </div>
       </div>
@@ -100,6 +118,7 @@ export default function SignInPage() {
     <div className="page-container max-w-md mx-auto mt-12">
       <div className="card">
         <h1 className="text-3xl font-bold text-center mb-2">כניסה לשקדול</h1>
+        <p className="text-center text-gray-500 mb-6">ברוכים השבים!</p>
 
         {/* Mode toggle */}
         <div className="flex justify-center gap-2 mb-6">
@@ -146,7 +165,14 @@ export default function SignInPage() {
             </div>
 
             {error && (
-              <div role="alert" className="bg-red-50 text-red-600 p-3 rounded-xl text-sm">{error}</div>
+              <div role="alert" className="bg-red-50 text-red-600 p-3 rounded-xl text-sm">
+                {error}
+                {error.includes("להירשם") && (
+                  <Link href="/auth/register" className="block mt-2 text-amber-600 underline font-medium">
+                    לחצו כאן להרשמה
+                  </Link>
+                )}
+              </div>
             )}
 
             <button
@@ -204,10 +230,10 @@ export default function SignInPage() {
           </form>
         )}
 
-        <p className="text-center text-sm text-gray-400 mt-4">
+        <p className="text-center text-sm text-gray-400 mt-6">
           עדיין לא רשומים?{" "}
-          <Link href="/auth/register" className="text-amber-600 underline">
-            הירשמו כאן
+          <Link href="/auth/register" className="text-amber-600 underline font-medium">
+            הירשמו כאן - בחינם!
           </Link>
         </p>
       </div>
