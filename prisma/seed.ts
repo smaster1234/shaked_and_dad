@@ -47,10 +47,10 @@ async function main() {
   const shakedPasswordHash = await bcrypt.hash("shaked1234", 12);
 
   const seedUser = await prisma.user.upsert({
-    where: { email: "shaked@shakdol.com" },
+    where: { email: "shaked@shakdol.org" },
     update: { passwordHash: shakedPasswordHash, role: "ADMIN" },
     create: {
-      email: "shaked@shakdol.com",
+      email: "shaked@shakdol.org",
       fullName: "שקד",
       age: 10,
       role: "ADMIN",
