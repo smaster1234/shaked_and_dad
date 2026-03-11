@@ -43,16 +43,19 @@ async function main() {
 
   console.log("Default settings created");
 
-  // Create seed user for sample words
+  // Create second admin user (shaked)
+  const shakedPasswordHash = await bcrypt.hash("shaked1234", 12);
+
   const seedUser = await prisma.user.upsert({
     where: { email: "shaked@shakdol.com" },
-    update: {},
+    update: { passwordHash: shakedPasswordHash, role: "ADMIN" },
     create: {
       email: "shaked@shakdol.com",
       fullName: "שקד",
       age: 10,
-      role: "USER",
+      role: "ADMIN",
       status: "ACTIVE",
+      passwordHash: shakedPasswordHash,
       termsAcceptedAt: new Date(),
     },
   });
